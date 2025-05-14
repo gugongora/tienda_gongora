@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Confirmación de Orden</h2>
+<p>Gracias por tu compra. Tu orden número {{ order.id }} ha sido recibida.</p>
+<p>Status: {{ order.status }}</p>
+{% endblock %}

@@ -1,0 +1,11 @@
+/* Ajustes personalizados para el logo */
+.logo-img {
+    height: 10rem;     /* Cambia este valor según el tamaño deseado */
+    max-width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  
+  .modal-body input {
+    font-size: 1.1rem;
+  }

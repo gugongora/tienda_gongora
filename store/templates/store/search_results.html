@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Resultados de búsqueda{% endblock %}
+
+{% block content %}
+  <h2>Resultados para: "{{ query }}"</h2>
+
+  {% if results %}
+    <ul style="list-style: none; padding: 0;">
+      {% for product in results %}
+        <li style="margin-bottom: 1rem;">
+          <a href="{% url 'store:product_detail' product.id %}" style="text-decoration: none; color: inherit;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" style="height: 80px;">
+              <div>
+                <strong>{{ product.name }}</strong><br>
+                ${{ product.price }}
+              </div>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No se encontraron productos que coincidan con tu búsqueda.</p>
+  {% endif %}
+{% endblock %}

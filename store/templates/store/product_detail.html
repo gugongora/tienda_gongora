@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ product.name }}</h2>
+<p>{{ product.description }}</p>
+<p>Precio: ${{ product.price }}</p>
+{% if product.image %}
+  <img src="{{ product.image.url }}" alt="{{ product.name }}">
+{% endif %}
+<a href="/">Volver</a>
+{% endblock %}

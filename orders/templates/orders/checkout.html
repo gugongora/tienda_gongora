@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Revisa tu carrito</h2>
+<ul>
+  {% for item in cart_items %}
+    <li>{{ item.product.name }} - ${{ item.product.price }} x {{ item.quantity }} = ${{ item.subtotal }}</li>
+  {% endfor %}
+</ul>
+
+<p>Total: ${{ total }}</p>
+
+<form method="POST">
+  {% csrf_token %}
+  <button type="submit">Realizar pago</button>
+</form>
+{% endblock %}
