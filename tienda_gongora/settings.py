@@ -94,11 +94,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tiendagongora',  # Nombre de la base de datos
         'USER': 'admin',           # Usuario que configuraste
-        'PASSWORD': 'eldiablo1',   # Contraseña que configuraste
-        'HOST': 'tiendagongora.c1sguo86aai5.us-east-1.rds.amazonaws.com',
+        'PASSWORD': '3L2umjVEir_FTS*k',   # Contraseña que configuraste
+        'HOST': '172.31.80.21',
         'PORT': '3306',            # Puerto de MySQL
     }
-}
+}   
 
 
 # Password validation
