@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'ecommerce',
     'orders',
     'users',
+    'payments',
+    'conversion',
 ]
 
 MIDDLEWARE = [
@@ -78,27 +80,27 @@ WSGI_APPLICATION = 'tienda_gongora.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql',
-#        'NAME': 'tienda_gongora',
-#        'USER': 'root',
-#        'PASSWORD': 'eldiablo1',  # pon tu contraseña si es que tienes
-#        'HOST': '127.0.0.1',
-#        'PORT': '3306',
-#    }
-#}
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tiendagongora',  # Nombre de la base de datos
-        'USER': 'admin',           # Usuario que configuraste
-        'PASSWORD': '3L2umjVEir_FTS*k',   # Contraseña que configuraste
-        'HOST': '172.31.80.21',
-        'PORT': '3306',            # Puerto de MySQL
+        'NAME': 'tienda_gongora',
+        'USER': 'root',
+        'PASSWORD': 'eldiablo1',  # pon tu contraseña si es que tienes
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
-}   
+}
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'tiendagongora',  # Nombre de la base de datos
+#        'USER': 'admin',           # Usuario que configuraste
+#        'PASSWORD': '3L2umjVEir_FTS*k',   # Contraseña que configuraste
+#        'HOST': '172.31.80.21',
+#        'PORT': '3306',            # Puerto de MySQL
+#    }
+#}   
 
 
 # Password validation
@@ -156,3 +158,5 @@ LOGIN_REDIRECT_URL = 'store:product_list'  # o donde desees redirigir después d
 LOGOUT_REDIRECT_URL = 'store:product_list'
 
 LOGIN_URL = 'users:login'
+
+BASE_URL = "http://localhost:8000"
