@@ -1,55 +1,34 @@
 import requests
-from datetime import datetime, timedelta
-from base64 import b64encode
-from xml.etree import ElementTree as ET
+from datetime import datetime
 
-# Credenciales de desarrollo
-BCCH_API_USER = "gustavogongoraortiz@gmail.com"
-BCCH_API_PASS = "@Eldiablo1"
+USER = "gustavogongoraortiz@gmail.com"
+PASS = "@Eldiablo1"
+SERIE = "F073.TCO.PRE.Z.D"
 
-def get_usd_exchange_rate():
-    url = "https://si3.bcentral.cl/SieteWS/SieteWS.asmx"
-    soap_action = "http://serviciosweb.siete.bcentral.cl/GetSeries"  # SOAPAction requerida
-
-    fecha = (datetime.now() - timedelta(days=1)).strftime("%d-%m-%Y")
-    serie_code = "F073.TCO.PRE.Z.D"
-
-    soap_body = f"""<?xml version="1.0" encoding="utf-8"?>
-    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-      <soap:Body>
-        <GetSeries xmlns="http://serviciosweb.siete.bcentral.cl">
-          <codigoSerie>{serie_code}</codigoSerie>
-          <fechaInicio>{fecha}</fechaInicio>
-          <fechaFin>{fecha}</fechaFin>
-          <codigoIdioma>es</codigoIdioma>
-        </GetSeries>
-      </soap:Body>
-    </soap:Envelope>
+def obtener_valor_dolar():
     """
+    Consulta el valor del dólar observado desde la API REST del Banco Central de Chile.
+    """
+    fecha = datetime.now().strftime("%Y-%m-%d")
 
-    headers = {
-        "Content-Type": "text/xml; charset=utf-8",
-        "SOAPAction": soap_action,  # ✅ NECESARIO
-        "Authorization": "Basic " + b64encode(f"{BCCH_API_USER}:{BCCH_API_PASS}".encode()).decode()
+    url = "https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx"
+    params = {
+        "user": USER,
+        "pass": PASS,
+        "function": "GetSeries",
+        "timeseries": SERIE,
+        "firstdate": fecha,
+        "lastdate": fecha
     }
 
     try:
-        response = requests.post(url, data=soap_body.encode("utf-8"), headers=headers)
+        response = requests.get(url, params=params, timeout=5)
+        data = response.json()
 
-        if response.status_code == 200:
-            tree = ET.fromstring(response.content)
-            value = tree.find('.//{http://serviciosweb.siete.bcentral.cl}OBS_VALOR')
-            if value is not None:
-                return float(value.text.replace(',', '.'))
-            else:
-                print("⚠️ No se encontró OBS_VALOR en la respuesta:")
-                print(response.content.decode())
+        if data["Codigo"] == 0 and data["Series"]["Obs"]:
+            return float(data["Series"]["Obs"][0]["value"])
         else:
-            print(f"❌ Error HTTP {response.status_code}: {response.text}")
-
-    except requests.RequestException as e:
-        print(f"❌ Error de conexión: {e}")
-
-    return None
+            return None
+    except Exception as e:
+        print(f"Error al consultar el dólar: {e}")
+        return None

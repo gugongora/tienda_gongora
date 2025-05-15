@@ -1,65 +1,60 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Order, OrderItem
 from cart.cart import get_cart_items, clear_cart
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
-
+from payments.webpay import crear_transaccion
+from django.utils.crypto import get_random_string
+from django.urls import reverse
 
 
 @login_required
-def create_order(request):
+def checkout(request):
     cart_items = get_cart_items(request)
     if not cart_items:
-        return redirect('product_list')
+        return redirect('store:product_list')
 
-    # Crear la orden (sin necesidad de un usuario autenticado)
-    order = Order.objects.create(user=request.user)  # Usamos request.user, pero este puede ser anónimo o un usuario genérico
+    total = sum(Decimal(item['subtotal']) for item in cart_items)
 
-    for item in cart_items:
-        OrderItem.objects.create(
-            order=order,
-            product=item['product'],
-            quantity=item['quantity']
-        )
-
-    clear_cart(request)
-    return render(request, 'orders/order_confirmation.html', {'order': order})
-
-
-def checkout(request):
-    # Obtener los productos en el carrito
-    cart_items = get_cart_items(request)
-    total = sum(item['subtotal'] for item in cart_items)
-    
-    # Si el usuario no está logueado, redirigir a la página de login
-    if not request.user.is_authenticated:
-        return redirect('login')  # Suponiendo que tengas una vista de login
-    
-    # Si el formulario es enviado, procesar la orden
     if request.method == 'POST':
+        # Crear orden
         order = Order.objects.create(
             user=request.user,
-            total=Decimal(total),
+            total=total,
             status='pending'
         )
-        
-        # Agregar los productos a la orden
+
+        # Agregar productos a la orden
         for item in cart_items:
-            order_item = OrderItem.objects.create(
+            OrderItem.objects.create(
                 order=order,
                 product=item['product'],
                 quantity=item['quantity'],
-                subtotal=item['subtotal']
+                subtotal=Decimal(item['subtotal'])
             )
 
-        # Limpiar el carrito después de realizar la compra
-        request.session['cart'] = {}
+        # Preparar datos para Webpay
+        session_id = str(request.user.id)
+        buy_order = f"orden-{order.id}-{get_random_string(6)}"
+        return_url = request.build_absolute_uri(reverse('payments:webpay_confirmacion'))
 
-        # Redirigir a una página de confirmación
-        return redirect('order_confirmation', order_id=order.id)
+        resultado = crear_transaccion(session_id, total, buy_order, return_url)
+
+        # Guardar token y buy_order en la orden
+        order.token = resultado["token"]
+        order.buy_order = buy_order
+        order.save()
+
+        return redirect(f"{resultado['url']}?token_ws={resultado['token']}")
 
     return render(request, 'orders/checkout.html', {'cart_items': cart_items, 'total': total})
 
+
+@login_required
 def order_confirmation(request, order_id):
-    order = Order.objects.get(id=order_id)
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.user != request.user:
+        return redirect('store:product_list')
+
     return render(request, 'orders/order_confirmation.html', {'order': order})

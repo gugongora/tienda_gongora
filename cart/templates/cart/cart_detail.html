@@ -2,6 +2,7 @@
 
 {% block content %}
 <h2>Carrito de compras</h2>
+
 {% if cart_items %}
   <ul>
     {% for item in cart_items %}
@@ -11,10 +12,17 @@
       </li>
     {% endfor %}
   </ul>
+
   <p><strong>Total:</strong> ${{ total }}</p>
+
+  <form method="post" action="{% url 'orders:checkout' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">💳 Pagar con Webpay</button>
+  </form>
+
 {% else %}
   <p>El carrito está vacío.</p>
 {% endif %}
+
 <a href="{% url 'store:product_list' %}">Seguir comprando</a>
-<a href="{% url 'orders:create_order' %}">Finalizar compra</a>
 {% endblock %}

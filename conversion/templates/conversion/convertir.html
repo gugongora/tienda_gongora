@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conversor de Moneda</title>
+</head>
+<body>
+    <h1>Conversor de Dólar a Peso Chileno</h1>
+
+<form method="get" action="{% url 'conversion:convertir_moneda_template' %}">
+        <label for="monto">Monto en USD:</label>
+        <input type="number" step="0.01" name="monto" required>
+        <button type="submit">Convertir</button>
+    </form>
+
+    {% if monto_usd is not None %}
+        <h2>Resultado:</h2>
+        <p><strong>Valor del dólar:</strong> {{ valor_dolar }} CLP</p>
+        <p><strong>Monto ingresado:</strong> {{ monto_usd }} USD</p>
+        <p><strong>Monto equivalente:</strong> {{ monto_clp }} CLP</p>
+    {% elif error %}
+        <p style="color:red;"><strong>{{ error }}</strong></p>
+    {% endif %}
+</body>
+</html>

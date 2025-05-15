@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import clp_to_usd_view
+from . import views
 
 app_name = 'conversion'
 
 urlpatterns = [
-    path('convert/clp-usd/', clp_to_usd_view, name='clp_to_usd'),
+    path("convertir/", views.convertir_moneda, name="convertir_moneda"),
+     path("convertir/vista/", views.convertir_moneda_template, name="convertir_moneda_template"),
 ]

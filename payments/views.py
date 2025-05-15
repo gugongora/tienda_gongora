@@ -6,6 +6,9 @@ from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse
 
+from orders.models import Order
+
+
 from .webpay_conf import WEBPAY_API_BASE_URL, WEBPAY_API_KEY_ID, WEBPAY_API_KEY_SECRET
 
 def iniciar_pago(request):
@@ -26,7 +29,6 @@ def iniciar_pago(request):
 
 def webpay_confirmacion(request):
     token = request.GET.get("token_ws")
-
     if not token:
         return HttpResponse("Token no recibido", status=400)
 
@@ -39,11 +41,19 @@ def webpay_confirmacion(request):
 
     response = requests.put(url, headers=headers)
     data = response.json()
-
     print(data)
-    
-    # Aquí decides si mostrar éxito o error
+
+    try:
+        order = Order.objects.get(token=token)
+    except Order.DoesNotExist:
+        return HttpResponse("Orden no encontrada para el token", status=404)
+
     if data.get("status") == "AUTHORIZED":
-        return HttpResponse("Pago exitoso")
+        order.status = "paid"
+        order.save()
+        request.session['cart'] = {}  # limpiar carrito
+        return redirect('orders:order_confirmation', order_id=order.id)
     else:
+        order.status = "cancelled"
+        order.save()
         return HttpResponse(f"Pago fallido: {data.get('response_code', 'Error desconocido')}", status=400)

@@ -5,3 +5,4 @@ packaging==25.0
 pillow==11.2.1
 PyMySQL==1.1.1
 sqlparse==0.5.3
+zeep>=4.2.1

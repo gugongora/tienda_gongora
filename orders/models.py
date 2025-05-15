@@ -16,6 +16,8 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    token = models.CharField(max_length=100, blank=True, null=True)
+    buy_order = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return f'Orden #{self.id} - {self.status}'
