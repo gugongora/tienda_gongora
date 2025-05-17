@@ -16,11 +16,9 @@ from django.contrib.auth.models import User, Group
 def create_categories():
     """Crea categorías de muestra"""
     categories = [
-        {'nombre': 'Herramientas Eléctricas', 'descripcion': 'Herramientas que funcionan con electricidad'},
-        {'nombre': 'Herramientas Manuales', 'descripcion': 'Herramientas que no requieren electricidad'},
-        {'nombre': 'Plomería', 'descripcion': 'Materiales y herramientas para plomería'},
-        {'nombre': 'Electricidad', 'descripcion': 'Materiales para instalaciones eléctricas'},
-        {'nombre': 'Pintura', 'descripcion': 'Pinturas y accesorios'},
+       {'nombre': 'Herramientas Manuales', 'descripcion': 'Incluye herramientas eléctricas y manuales'},
+        {'nombre': 'Materiales Básicos', 'descripcion': 'Materiales para construcción y acabados'},
+        {'nombre': 'Equipos de Seguridad', 'descripcion': 'Equipos de protección personal y accesorios'},
     ]
     
     for category in categories:
@@ -48,16 +46,29 @@ def create_brands():
 def create_products(categories, brands):
     """Crea productos de muestra"""
     products = [
-        {'nombre': 'Taladro Inalámbrico', 'categoria': 'Herramientas Eléctricas', 'marca': 'DeWalt', 'precio': '899.99'},
-        {'nombre': 'Sierra Circular', 'categoria': 'Herramientas Eléctricas', 'marca': 'Makita', 'precio': '1299.50'},
-        {'nombre': 'Juego de Destornilladores', 'categoria': 'Herramientas Manuales', 'marca': 'Stanley', 'precio': '349.99'},
-        {'nombre': 'Martillo de Carpintero', 'categoria': 'Herramientas Manuales', 'marca': 'Truper', 'precio': '149.50'},
-        {'nombre': 'Tubo PVC 1"', 'categoria': 'Plomería', 'marca': 'Rotoplas', 'precio': '45.99'},
-        {'nombre': 'Llave Ajustable 10"', 'categoria': 'Plomería', 'marca': 'Urrea', 'precio': '219.99'},
-        {'nombre': 'Cable THW Cal. 12', 'categoria': 'Electricidad', 'marca': 'Steren', 'precio': '8.99'},
-        {'nombre': 'Interruptor Sencillo', 'categoria': 'Electricidad', 'marca': 'Steren', 'precio': '39.99'},
-        {'nombre': 'Pintura Vinílica 4L', 'categoria': 'Pintura', 'marca': 'Comex', 'precio': '499.99'},
-        {'nombre': 'Brocha 2"', 'categoria': 'Pintura', 'marca': 'Pretul', 'precio': '29.99'},
+        # Herramientas Manuales
+        {'nombre': 'Martillo de Carpintero', 'categoria': 'Herramientas Manuales', 'marca': 'Truper', 'precio': '150.00'},
+        {'nombre': 'Juego de Destornilladores', 'categoria': 'Herramientas Manuales', 'marca': 'Stanley', 'precio': '300.00'},
+        {'nombre': 'Llave Ajustable 10"', 'categoria': 'Herramientas Manuales', 'marca': 'Urrea', 'precio': '220.00'},
+        {'nombre': 'Taladro Inalámbrico', 'categoria': 'Herramientas Manuales', 'marca': 'DeWalt', 'precio': '900.00'},
+        {'nombre': 'Sierra Circular', 'categoria': 'Herramientas Manuales', 'marca': 'Makita', 'precio': '1300.00'},
+        {'nombre': 'Lijadora Orbital', 'categoria': 'Herramientas Manuales', 'marca': 'Bosch', 'precio': '850.00'},
+        
+        # Materiales Básicos
+        {'nombre': 'Bolsa de Cemento 50kg', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '250.00'},
+        {'nombre': 'Saco de Arena', 'categoria': 'Materiales Básicos', 'marca': 'Truper', 'precio': '70.00'},
+        {'nombre': 'Ladrillos Rústicos', 'categoria': 'Materiales Básicos', 'marca': 'Truper', 'precio': '3.00'},
+        {'nombre': 'Pintura Vinílica 4L', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '500.00'},
+        {'nombre': 'Barniz Protector', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '200.00'},
+        {'nombre': 'Cerámica para Piso', 'categoria': 'Materiales Básicos', 'marca': 'Truper', 'precio': '350.00'},
+        
+        # Equipos de Seguridad
+        {'nombre': 'Casco de Seguridad', 'categoria': 'Equipos de Seguridad', 'marca': 'Pretul', 'precio': '120.00'},
+        {'nombre': 'Guantes Antideslizantes', 'categoria': 'Equipos de Seguridad', 'marca': 'Pretul', 'precio': '60.00'},
+        {'nombre': 'Lentes de Seguridad', 'categoria': 'Equipos de Seguridad', 'marca': 'Pretul', 'precio': '80.00'},
+        {'nombre': 'Juego de Tornillos y Anclajes', 'categoria': 'Equipos de Seguridad', 'marca': 'Stanley', 'precio': '90.00'},
+        {'nombre': 'Fijador Multiusos', 'categoria': 'Equipos de Seguridad', 'marca': 'Steren', 'precio': '75.00'},
+        {'nombre': 'Cinta Métrica 5m', 'categoria': 'Equipos de Seguridad', 'marca': 'Stanley', 'precio': '55.00'},
     ]
     
     for idx, product in enumerate(products):

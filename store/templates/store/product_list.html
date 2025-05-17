@@ -1,32 +1,265 @@
-{% extends 'base.html' %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ferremas - Herramientas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .card-img-top {
+      height: 200px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
 
-{% block content %}
-<div class="container mt-4">
-  <div class="row">
-    {% for product in products %}
-      <div class="col-md-4 mb-4">
-        <div class="card h-100">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-          {% else %}
-            <img src="{% static 'images/no-image.jpg' %}" class="card-img-top" alt="Sin imagen">
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title">{{ product.name }}</h5>
-            <p class="card-text">{{ product.description|truncatewords:20 }}</p>
-            <p class="card-text fw-bold">${{ product.price }}</p>
-            <div class="d-grid gap-2">
-              <a href="{% url 'store:product_detail' product.pk %}" class="btn btn-outline-primary">Ver detalles</a>
-              <form action="{% url 'cart:add_to_cart' product.pk %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success mt-2">Agregar al carrito</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
+  <!-- Barra superior -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="/static/images/logo.png" alt="FERREMAS Logo">
+      <strong class="text-danger">FERREMAS</strong>
+    </a>
+    <form class="d-flex me-auto ms-3" role="search">
+      <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
+      <button class="btn btn-outline-primary" type="submit">Buscar</button>
+    </form>
+    <div class="d-flex">
+      <a href="{% url 'users:login' %}" class="btn btn-outline-secondary me-2">Login</a>
+    </div>
   </div>
-</div>
-{% endblock %}
+</nav>
+
+
+  <!-- Barra de navegación -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Herramientas</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Filtros -->
+  <div class="container mt-4">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="categoriaSelect" class="form-label">Filtrar por Categoría:</label>
+        <select id="categoriaSelect" class="form-select">
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label for="marcaSelect" class="form-label">Filtrar por Marca:</label>
+        <select id="marcaSelect" class="form-select">
+          <option value="">Todas las marcas</option>
+        </select>
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-12">
+        <button id="btnFiltrar" class="btn btn-primary">Aplicar filtros</button>
+        <button id="btnLimpiar" class="btn btn-secondary ms-2">Limpiar filtros</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido de productos -->
+  <div class="container">
+    <div id="filtros-activos" class="mb-3"></div>
+    <div class="row" id="producto-container">
+      <p>Cargando productos...</p>
+    </div>
+  </div>
+
+  <script>
+    const categoriaSelect = document.getElementById('categoriaSelect');
+    const marcaSelect = document.getElementById('marcaSelect');
+    const contenedor = document.getElementById('producto-container');
+    const filtrosActivos = document.getElementById('filtros-activos');
+    const btnFiltrar = document.getElementById('btnFiltrar');
+    const btnLimpiar = document.getElementById('btnLimpiar');
+
+    // Mapa para almacenar nombres de categorías y marcas
+    const categoriasMap = new Map();
+    const marcasMap = new Map();
+
+    // Cargar filtros
+    fetch('http://127.0.0.1:8000/api/categorias/')
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Error al cargar categorías: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Datos de categorías recibidos:', data);
+        if (!data.results) {
+          console.error('La estructura de datos de categorías no es la esperada:', data);
+          return;
+        }
+
+        data.results.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = cat.nombre;
+          categoriaSelect.appendChild(option);
+          categoriasMap.set(cat.id.toString(), cat.nombre);
+        });
+      })
+      .catch(error => {
+        console.error('Error cargando categorías:', error);
+      });
+
+    fetch('http://127.0.0.1:8000/api/marcas/')
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Error al cargar marcas: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Datos de marcas recibidos:', data);
+        if (!data.results) {
+          console.error('La estructura de datos de marcas no es la esperada:', data);
+          return;
+        }
+
+        data.results.forEach(marca => {
+          const option = document.createElement('option');
+          option.value = marca.id;
+          option.textContent = marca.nombre;
+          marcaSelect.appendChild(option);
+          marcasMap.set(marca.id.toString(), marca.nombre);
+        });
+      })
+      .catch(error => {
+        console.error('Error cargando marcas:', error);
+      });
+
+    // Función para actualizar la indicación de filtros activos
+    function actualizarFiltrosActivos() {
+      filtrosActivos.innerHTML = '';
+      
+      const filtrosAplicados = [];
+      
+      if (categoriaSelect.value) {
+        const nombreCategoria = categoriasMap.get(categoriaSelect.value) || categoriaSelect.value;
+        filtrosAplicados.push(`<span class="badge bg-info me-2">Categoría: ${nombreCategoria}</span>`);
+      }
+      
+      if (marcaSelect.value) {
+        const nombreMarca = marcasMap.get(marcaSelect.value) || marcaSelect.value;
+        filtrosAplicados.push(`<span class="badge bg-info me-2">Marca: ${nombreMarca}</span>`);
+      }
+      
+      if (filtrosAplicados.length > 0) {
+        filtrosActivos.innerHTML = `
+          <div class="alert alert-info">
+            Filtros aplicados: ${filtrosAplicados.join(' ')}
+          </div>
+        `;
+      }
+    }
+
+    // Función para cargar productos con filtros
+    function cargarProductos() {
+      contenedor.innerHTML = '<p>Cargando productos...</p>';
+      
+      // Construir URL con parámetros
+      const url = new URL('http://127.0.0.1:8000/api/productos/');
+      
+      if (categoriaSelect.value) {
+        url.searchParams.append('categoria', categoriaSelect.value);
+      }
+      
+      if (marcaSelect.value) {
+        url.searchParams.append('marca', marcaSelect.value);
+      }
+      
+      console.log('URL de solicitud:', url.toString());
+      
+      // Actualizar interfaz para mostrar filtros activos
+      actualizarFiltrosActivos();
+
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error en la respuesta del servidor: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Datos de productos recibidos:', data);
+          contenedor.innerHTML = '';
+          
+          if (!data.results || data.results.length === 0) {
+            contenedor.innerHTML = '<div class="col-12"><p class="alert alert-warning">No se encontraron productos con los filtros seleccionados.</p></div>';
+            return;
+          }
+          
+          data.results.forEach(producto => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-4';
+
+            const card = document.createElement('div');
+            card.className = 'card h-100';
+
+            const img = document.createElement('img');
+            img.className = 'card-img-top';
+            img.alt = producto.nombre;
+            img.src = producto.imagen_url || '/api/placeholder/200/200';
+
+            const body = document.createElement('div');
+            body.className = 'card-body';
+
+      body.innerHTML = `
+            <h5 class="card-title">${producto.nombre}</h5>
+            <p class="card-text"><strong>Código:</strong> ${producto.codigo}</p>
+            <p class="card-text"><strong>Marca:</strong> ${producto.marca_nombre}</p>
+            <p class="card-text"><strong>Categoría:</strong> ${producto.categoria_nombre}</p>
+            <p class="card-text fw-bold">$${producto.precio_actual}</p>
+          `;
+
+            card.appendChild(img);
+            card.appendChild(body);
+            col.appendChild(card);
+            contenedor.appendChild(col);
+          });
+        })
+        .catch(error => {
+          contenedor.innerHTML = `<div class="col-12"><p class="alert alert-danger">Error al cargar productos: ${error.message}</p></div>`;
+          console.error('Error:', error);
+        });
+    }
+
+    // Limpiar filtros
+    function limpiarFiltros() {
+      categoriaSelect.value = '';
+      marcaSelect.value = '';
+      filtrosActivos.innerHTML = '';
+      cargarProductos();
+    }
+
+    // Eventos
+    btnFiltrar.addEventListener('click', cargarProductos);
+    btnLimpiar.addEventListener('click', limpiarFiltros);
+
+    // Carga inicial
+    window.addEventListener('DOMContentLoaded', cargarProductos);
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -190,3 +190,4 @@ LOGOUT_REDIRECT_URL = 'store:product_list'
 LOGIN_URL = 'users:login'
 
 BASE_URL = "http://localhost:8000"
+LOGIN_REDIRECT_URL = '/'

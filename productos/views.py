@@ -6,17 +6,26 @@ from .serializers import ProductoListSerializer, ProductoDetailSerializer, Categ
 
 class ProductoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Producto.objects.all()
-    
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ProductoDetailSerializer
         return ProductoListSerializer
-    
+
     def get_permissions(self):
-        # Para GET /productos y GET /productos/{codigo} permitimos acceso público
         return [permissions.AllowAny()]
-    
-    @action(detail=False, methods=['get'])
+
+    def get_queryset(self):
+        queryset = Producto.objects.all()
+        categoria_id = self.request.query_params.get('categoria')
+        marca_id = self.request.query_params.get('marca')
+
+        if categoria_id:
+            queryset = queryset.filter(categoria_id=categoria_id)
+        if marca_id:
+            queryset = queryset.filter(marca_id=marca_id)
+
+        return queryset
     def por_categoria(self, request):
         categoria_id = request.query_params.get('categoria_id')
         if categoria_id:
