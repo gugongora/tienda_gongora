@@ -45,6 +45,11 @@ INSTALLED_APPS = [
     'users',
     'payments',
     'conversion',
+    'rest_framework',
+    'corsheaders',
+    'drf_yasg',
+    'productos',
+    'operaciones',
 ]
 
 MIDDLEWARE = [
@@ -55,8 +60,33 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    # Añadir los dominios de tus sucursales y clientes externos
+]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
+}
+# Configuración para JWT
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 ROOT_URLCONF = 'tienda_gongora.urls'
 
 TEMPLATES = [
@@ -83,10 +113,10 @@ WSGI_APPLICATION = 'tienda_gongora.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tienda_gongora',
+        'NAME': 'tiendagongora',
         'USER': 'root',
-        'PASSWORD': 'eldiablo1',  # pon tu contraseña si es que tienes
-        'HOST': '127.0.0.1',
+        'PASSWORD': 'eldiablo1',  # Usa la misma con la que entraste a MySQL
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }

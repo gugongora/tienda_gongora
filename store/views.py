@@ -14,3 +14,4 @@ def search(request):
     query = request.GET.get('q')
     results = Product.objects.filter(name__icontains=query) if query else []
     return render(request, 'store/search_results.html', {'results': results, 'query': query})
+    
