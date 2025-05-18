@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'tienda_gongora.middleware.RedirectByGroupMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Dashboard Interno</h2>
+
+    <div class="container">
+        <h2>Panel de control interno</h2>
+
+        <!-- Consultar Stock -->
+        <form method="post">
+            {% csrf_token %}
+            <h4>Consultar stock por ID de sucursal</h4>
+            <input type="text" name="sucursal_id" placeholder="ID de sucursal">
+            <button type="submit" name="consultar_stock">Consultar Stock</button>
+        </form>
+
+        {% if stock_data %}
+            <h5>Resultado del stock:</h5>
+            <pre>{{ stock_data|safe }}</pre>
+        {% endif %}
+
+        <hr>
+
+        <!-- Consultar Pedido -->
+        <form method="post">
+            {% csrf_token %}
+            <h4>Consultar detalle del pedido</h4>
+            <input type="text" name="pedido_id" placeholder="ID del pedido">
+            <button type="submit" name="consultar_pedido">Ver Detalle</button>
+        </form>
+
+        {% if pedido_detalle %}
+            <h5>Detalle del pedido:</h5>
+            <pre>{{ pedido_detalle|safe }}</pre>
+        {% endif %}
+
+        <hr>
+
+        <!-- Realizar Pedido -->
+        <form method="post">
+            {% csrf_token %}
+            <h4>Realizar pedido desde sucursal</h4>
+            <div class="form-group">
+                <label for="sucursal_origen">ID de sucursal origen:</label>
+                <input type="text" id="sucursal_origen" name="sucursal_origen" placeholder="ID de sucursal" required>
+            </div>
+            <div class="form-group">
+                <label for="productos">Productos (formato: id_producto:cantidad,id_producto:cantidad)</label>
+                <input type="text" id="productos" name="productos" placeholder="Ejemplo: PROD-001:2,PROD-003:5" required>
+                <small class="form-text text-muted">Ingrese códigos de producto y cantidades (ej: PROD-001:2,PROD-003:5)</small>
+            </div>
+            <div class="form-group">
+                <label for="observaciones">Observaciones adicionales:</label>
+                <textarea id="observaciones" name="observaciones" placeholder="Observaciones adicionales"></textarea>
+            </div>
+            <button type="submit" name="realizar_pedido">Enviar Pedido</button>
+        </form>
+
+        {% if pedido_resultado %}
+            <h5>Resultado del pedido:</h5>
+            <div class="alert {% if pedido_resultado.error %}alert-danger{% else %}alert-success{% endif %}">
+                <pre>{{ pedido_resultado|safe }}</pre>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -22,11 +22,13 @@ from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django.urls import reverse_lazy
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 # Importa las vistas que has creado
 from productos.views import ProductoViewSet, CategoriaViewSet, MarcaViewSet
 from operaciones.views import SucursalViewSet, PedidoViewSet, ContactoViewSet
 # Configura la documentación automática
+from django.views.generic import RedirectView
 schema_view = get_schema_view(
    openapi.Info(
       title="Tienda Góngora API",
@@ -48,18 +50,18 @@ router.register(r'sucursales', SucursalViewSet)
 router.register(r'pedidos', PedidoViewSet)
 
 urlpatterns = [
-    path('', include('store.urls')),
+    path('', RedirectView.as_view(url=reverse_lazy('store:product_list'), permanent=False)),
     path('admin/', admin.site.urls),
     path('cart/', include('cart.urls')),
     path('orders/', include('orders.urls')),
-    path('users/', include('users.urls')),
+    path('users/', include(('users.urls', 'users'), namespace='users')),  # solo si tienes users también
     path('webpay/', include('payments.urls')),
     path('conversion/', include('conversion.urls')),
-
+    path('store/', include(('store.urls', 'store'), namespace='store')),
     # URLs para la API
     path('api/', include(router.urls)),
     path('api/contacto/', ContactoViewSet.as_view({'post': 'create'}), name='contacto'),
-    
+     path('dashboard/', RedirectView.as_view(url='/store/dashboard/', permanent=True), name='dashboard_redirect'),
     # URLs para autenticación
     path('api-auth/', include('rest_framework.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
