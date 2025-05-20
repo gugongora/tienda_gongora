@@ -1,17 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from store.models import Product
+from django.contrib import messages
 
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart = request.session.get('cart', {})
 
-    if str(product.id) in cart:  # Convertir el id del producto a cadena para evitar problemas de tipo
+    if str(product.id) in cart:
         cart[str(product.id)] += 1
     else:
         cart[str(product.id)] = 1
 
     request.session['cart'] = cart
-    return redirect('cart:view_cart')
+
+    messages.success(request, f"“{product.name}” se ha agregado al carrito.")
+    return redirect(request.META.get('HTTP_REFERER', 'store:product_list'))
 
 def view_cart(request):
     cart = request.session.get('cart', {})
@@ -35,16 +38,36 @@ def view_cart(request):
 
 def remove_from_cart(request, product_id):
     cart = request.session.get('cart', {})
-    product_id_str = str(product_id)  # Convierte product_id a cadena
+    product_id_str = str(product_id)
 
-    print(f"Carrito antes de eliminar: {cart}")
+    if product_id_str in cart:
+        if cart[product_id_str] > 1:
+            cart[product_id_str] -= 1  # Resta 1 unidad
+        else:
+            del cart[product_id_str]  # Elimina el producto si era 1
+
+    request.session['cart'] = cart
+    return redirect('cart:view_cart')
+
+
+def remove_all_from_cart(request, product_id):
+    cart = request.session.get('cart', {})
+    product_id_str = str(product_id)
+
     if product_id_str in cart:
         del cart[product_id_str]
-        print(f"Producto {product_id} eliminado")
-    else:
-        print(f"Producto {product_id} no encontrado en el carrito")
-    
-    request.session['cart'] = cart
-    print(f"Carrito después de eliminar: {cart}")
 
+    request.session['cart'] = cart
+    return redirect(request.META.get('HTTP_REFERER', 'cart:view_cart'))
+
+def increase_quantity(request, product_id):
+    cart = request.session.get('cart', {})
+    product_id_str = str(product_id)
+
+    if product_id_str in cart:
+        cart[product_id_str] += 1
+    else:
+        cart[product_id_str] = 1
+
+    request.session['cart'] = cart
     return redirect('cart:view_cart')

@@ -1,32 +1,84 @@
 {% extends 'base.html' %}
 {% load static %}
+{% get_static_prefix as STATIC %}
 
 {% block content %}
-<div class="container mt-4">
-  <div class="row">
+
+
+<!-- Carrusel Hero -->
+<div class="relative overflow-hidden mb-10 rounded-lg shadow-lg h-[400px]">
+  <div class="carousel relative h-full w-full">
+
+    <!-- Slide 1 -->
+    <div class="absolute inset-0 transition-opacity duration-1000 opacity-100 carousel-item">
+      <img src="{% static 'images/carrusel1.jpg' %}" alt="Carrusel 1" class="absolute inset-0 h-full w-full object-cover z-0">
+      <div class="relative z-10 h-full w-full flex flex-col justify-center items-center text-center px-6">
+        <h2 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">Joyas con historia</h2>
+        <p class="text-white text-lg mb-4 drop-shadow">Descubre nuestra colección artesanal.</p>
+        <a href="#catalogo" class="bg-white text-gray-800 font-semibold px-5 py-2 rounded hover:bg-gray-100 transition">
+          Ver catálogo
+        </a>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="absolute inset-0 transition-opacity duration-1000 opacity-0 carousel-item">
+      <img src="{% static 'images/carrusel2.jpg' %}" alt="Carrusel 2" class="absolute inset-0 h-full w-full object-cover z-0">
+      <div class="relative z-10 h-full w-full flex flex-col justify-center items-center text-center px-6">
+        <h2 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">Elegancia atemporal</h2>
+        <p class="text-white text-lg mb-4 drop-shadow">Inspirada en el brillo de cada ocasión.</p>
+        <a href="#catalogo" class="bg-white text-gray-800 font-semibold px-5 py-2 rounded hover:bg-gray-100 transition">
+          Comprar ahora
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Catálogo de productos -->
+<div id="catalogo" class="max-w-7xl mx-auto px-4 py-8">
+  <h2 class="text-3xl font-semibold text-center text-gray-800 mb-8">Catálogo de Joyas</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
     {% for product in products %}
-      <div class="col-md-4 mb-4">
-        <div class="card h-100">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-          {% else %}
-            <img src="{% static 'images/no-image.jpg' %}" class="card-img-top" alt="Sin imagen">
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title">{{ product.name }}</h5>
-            <p class="card-text">{{ product.description|truncatewords:20 }}</p>
-            <p class="card-text fw-bold">${{ product.price }}</p>
-            <div class="d-grid gap-2">
-              <a href="{% url 'store:product_detail' product.pk %}" class="btn btn-outline-primary">Ver detalles</a>
-              <form action="{% url 'cart:add_to_cart' product.pk %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success mt-2">Agregar al carrito</button>
-              </form>
-            </div>
+      <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-64 object-cover">
+        {% else %}
+          <img src="{% static 'images/no-image.jpg' %}" alt="Sin imagen" class="w-full h-64 object-cover">
+        {% endif %}
+        <div class="p-5">
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ product.name }}</h3>
+          <p class="text-sm text-gray-600 mb-2">{{ product.description|truncatewords:20 }}</p>
+          <p class="text-xl font-bold text-emerald-600 mb-4">${{ product.price }}</p>
+          <div class="flex flex-col gap-2">
+            <a href="{% url 'store:product_detail' product.pk %}" class="text-center bg-white border border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white font-medium py-2 px-4 rounded transition-colors">
+              Ver detalles
+            </a>
+            <form action="{% url 'cart:add_to_cart' product.pk %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 px-4 rounded transition-colors">
+                Agregar al carrito
+              </button>
+            </form>
           </div>
         </div>
       </div>
     {% endfor %}
   </div>
 </div>
+
+<!-- Carrusel JS -->
+<script>
+  const slides = document.querySelectorAll('.carousel-item');
+  let index = 0;
+
+  setInterval(() => {
+    slides.forEach((slide, i) => {
+      slide.style.opacity = i === index ? '1' : '0';
+    });
+    index = (index + 1) % slides.length;
+  }, 5000); // cambia cada 5 segundos
+</script>
+
 {% endblock %}

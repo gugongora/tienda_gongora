@@ -1,28 +1,89 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<h2>Carrito de compras</h2>
+<div class="flex flex-col md:flex-row gap-8">
 
-{% if cart_items %}
-  <ul>
-    {% for item in cart_items %}
-      <li>
-        {{ item.product.name }} - {{ item.quantity }} x ${{ item.product.price }} = ${{ item.subtotal }}
-        <a href="{% url 'cart:remove_from_cart' item.product.id %}">Eliminar</a>
-      </li>
-    {% endfor %}
-  </ul>
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="flex-1">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Carrito de compras 🛍️</h2>
 
-  <p><strong>Total:</strong> ${{ total }}</p>
+    {% if cart_items %}
+      <p class="text-gray-600 mb-6">Revisa los artículos agregados antes de realizar tu compra.</p>
+    {% else %}
+      <p class="text-gray-600">El carrito está vacío.</p>
+    {% endif %}
 
-  <form method="post" action="{% url 'orders:checkout' %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-success">💳 Pagar con Webpay</button>
-  </form>
+    <a href="{% url 'store:product_list' %}" class="inline-block mt-6 text-blue-600 hover:underline">
+      ← Seguir comprando
+    </a>
+  </div>
 
-{% else %}
-  <p>El carrito está vacío.</p>
-{% endif %}
+  <!-- SIDEBAR CARRITO -->
+  <aside class="w-full md:w-96 bg-white shadow-lg rounded-lg p-6">
+    {% if cart_items %}
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Resumen del Carrito</h3>
+      <ul class="divide-y divide-gray-200 mb-4">
+        {% for item in cart_items %}
+          <li class="py-3 flex gap-4 items-center">
 
-<a href="{% url 'store:product_list' %}">Seguir comprando</a>
+            <!-- Miniatura -->
+            {% if item.product.image %}
+              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 object-cover rounded-md shadow">
+            {% else %}
+              <img src="{% static 'images/no-image.jpg' %}" alt="Sin imagen" class="w-16 h-16 object-cover rounded-md shadow">
+            {% endif %}
+
+<!-- Info + control de cantidad -->
+<div class="flex-1">
+  <p class="font-medium text-gray-800">{{ item.product.name }}</p>
+  <div class="flex items-center gap-2 mt-1">
+
+    <!-- Botón restar -->
+    <a href="{% url 'cart:remove_from_cart' item.product.id %}"
+       class="w-6 h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-bold text-sm">
+      –
+    </a>
+
+    <!-- Cantidad -->
+    <span class="text-sm">{{ item.quantity }}</span>
+
+    <!-- Botón sumar -->
+    <a href="{% url 'cart:increase_quantity' item.product.id %}"
+       class="w-6 h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-bold text-sm">
+      +
+    </a>
+
+    <!-- Botón eliminar todo -->
+    <a href="{% url 'cart:remove_all_from_cart' item.product.id %}"
+       class="ml-auto text-red-500 hover:text-red-700 text-lg font-semibold"
+       title="Eliminar producto del carrito">
+      Eliminar
+    </a>
+
+  </div>
+
+  <p class="text-sm text-gray-500 mt-1">Subtotal: ${{ item.subtotal }}</p>
+</div>
+
+          </li>
+        {% endfor %}
+      </ul>
+
+      <p class="text-lg font-semibold text-right text-emerald-600 mb-6">
+        Total: ${{ total }}
+      </p>
+
+      <form method="post" action="{% url 'orders:checkout' %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded">
+          💳 Pagar con Webpay
+        </button>
+      </form>
+    {% else %}
+      <p class="text-gray-600">Tu carrito está vacío.</p>
+    {% endif %}
+  </aside>
+
+</div>
 {% endblock %}

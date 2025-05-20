@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'users',
     'payments',
     'conversion',
+    'tailwind',
+    'theme',
 ]
 
 MIDDLEWARE = [
@@ -160,3 +162,6 @@ LOGOUT_REDIRECT_URL = 'store:product_list'
 LOGIN_URL = 'users:login'
 
 BASE_URL = "http://localhost:8000"
+
+
+TAILWIND_APP_NAME = 'theme'
