@@ -45,6 +45,11 @@ INSTALLED_APPS = [
     'users',
     'payments',
     'conversion',
+    'rest_framework',
+    'corsheaders',
+    'drf_yasg',
+    'productos',
+    'operaciones',
 ]
 
 MIDDLEWARE = [
@@ -55,9 +60,51 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'tienda_gongora.middleware.RedirectByGroupMiddleware',
 ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    # Añadir los dominios de tus sucursales y clientes externos
+]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
+}
+# Configuración para JWT
+from datetime import timedelta
 
-ROOT_URLCONF = 'tienda_gongora.urls'
+# Configuración del paquete Simple JWT para la autenticación basada en tokens
+SIMPLE_JWT = {
+    # Tiempo de vida del token de acceso (usado para autenticar al usuario)
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # El token de acceso dura 1 día
+
+    # Tiempo de vida del token de refresco (usado para obtener un nuevo token de acceso)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # El token de refresco dura 7 días
+
+    # Si se establece en True, cada vez que se use un refresh token, se generará uno nuevo
+    'ROTATE_REFRESH_TOKENS': False,  # En este caso, no se rotan los tokens de refresco
+
+    # Algoritmo de encriptación utilizado para firmar los tokens
+    'ALGORITHM': 'HS256',
+
+    # Clave secreta utilizada para firmar los tokens (debe estar definida en settings.py)
+    'SIGNING_KEY': SECRET_KEY,
+
+    # Tipo de autorización en el encabezado HTTP (Authorization: Bearer <token>)
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# Indica el módulo raíz que contiene las rutas (URL) del proyecto Django
+ROOT_URLCONF = 'tienda_gongora.urls'  # Aquí se define el archivo principal con las URLs de la aplicación
+
 
 TEMPLATES = [
     {
@@ -83,10 +130,10 @@ WSGI_APPLICATION = 'tienda_gongora.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tienda_gongora',
+        'NAME': 'tiendagongora',
         'USER': 'root',
-        'PASSWORD': 'eldiablo1',  # pon tu contraseña si es que tienes
-        'HOST': '127.0.0.1',
+        'PASSWORD': 'eldiablo1',  # Usa la misma con la que entraste a MySQL
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }
@@ -160,3 +207,4 @@ LOGOUT_REDIRECT_URL = 'store:product_list'
 LOGIN_URL = 'users:login'
 
 BASE_URL = "http://localhost:8000"
+LOGIN_REDIRECT_URL = '/'
