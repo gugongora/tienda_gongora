@@ -1,11 +1,4 @@
 asgiref==3.8.1
-Django==5.2
-gunicorn==23.0.0
-packaging==25.0
-pillow==11.2.1
-PyMySQL==1.1.1
+Django==5.2.1
 sqlparse==0.5.3
-zeep>=4.2.1
-
-# Tailwind y herramientas asociadas
-django-tailwind>=3.5.0  # o la última versión que tengas instalada
+tzdata==2025.2
