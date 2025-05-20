@@ -4,23 +4,24 @@ import django
 import random
 from decimal import Decimal
 
-# Configurar el entorno de Django
+# Configurar el entorno de Django antes de importar modelos
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tienda_gongora.settings')
 django.setup()
 
-# Importar los modelos
+# Importación de modelos necesarios desde las apps del proyecto
 from productos.models import Categoria, Marca, Producto, Precio
 from operaciones.models import Sucursal, Stock, Pedido, DetallePedido
 from django.contrib.auth.models import User, Group
 
+# Función para crear categorías de ejemplo
 def create_categories():
-    """Crea categorías de muestra"""
     categories = [
-       {'nombre': 'Herramientas Manuales', 'descripcion': 'Incluye herramientas eléctricas y manuales'},
+        {'nombre': 'Herramientas Manuales', 'descripcion': 'Incluye herramientas eléctricas y manuales'},
         {'nombre': 'Materiales Básicos', 'descripcion': 'Materiales para construcción y acabados'},
         {'nombre': 'Equipos de Seguridad', 'descripcion': 'Equipos de protección personal y accesorios'},
     ]
     
+    # Crear cada categoría si no existe
     for category in categories:
         Categoria.objects.get_or_create(
             nombre=category['nombre'],
@@ -30,8 +31,8 @@ def create_categories():
     print(f"✅ {len(categories)} categorías creadas")
     return Categoria.objects.all()
 
+# Función para crear marcas de ejemplo
 def create_brands():
-    """Crea marcas de muestra"""
     brands = [
         'DeWalt', 'Bosch', 'Makita', 'Stanley', 'Truper', 
         'Pretul', 'Rotoplas', 'Urrea', 'Steren', 'Comex'
@@ -43,8 +44,8 @@ def create_brands():
     print(f"✅ {len(brands)} marcas creadas")
     return Marca.objects.all()
 
+# Función para crear productos con sus precios
 def create_products(categories, brands):
-    """Crea productos de muestra"""
     products = [
         # Herramientas Manuales
         {'nombre': 'Martillo de Carpintero', 'categoria': 'Herramientas Manuales', 'marca': 'Truper', 'precio': '150.00'},
@@ -53,7 +54,6 @@ def create_products(categories, brands):
         {'nombre': 'Taladro Inalámbrico', 'categoria': 'Herramientas Manuales', 'marca': 'DeWalt', 'precio': '900.00'},
         {'nombre': 'Sierra Circular', 'categoria': 'Herramientas Manuales', 'marca': 'Makita', 'precio': '1300.00'},
         {'nombre': 'Lijadora Orbital', 'categoria': 'Herramientas Manuales', 'marca': 'Bosch', 'precio': '850.00'},
-        
         # Materiales Básicos
         {'nombre': 'Bolsa de Cemento 50kg', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '250.00'},
         {'nombre': 'Saco de Arena', 'categoria': 'Materiales Básicos', 'marca': 'Truper', 'precio': '70.00'},
@@ -61,7 +61,6 @@ def create_products(categories, brands):
         {'nombre': 'Pintura Vinílica 4L', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '500.00'},
         {'nombre': 'Barniz Protector', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '200.00'},
         {'nombre': 'Cerámica para Piso', 'categoria': 'Materiales Básicos', 'marca': 'Truper', 'precio': '350.00'},
-        
         # Equipos de Seguridad
         {'nombre': 'Casco de Seguridad', 'categoria': 'Equipos de Seguridad', 'marca': 'Pretul', 'precio': '120.00'},
         {'nombre': 'Guantes Antideslizantes', 'categoria': 'Equipos de Seguridad', 'marca': 'Pretul', 'precio': '60.00'},
@@ -71,15 +70,14 @@ def create_products(categories, brands):
         {'nombre': 'Cinta Métrica 5m', 'categoria': 'Equipos de Seguridad', 'marca': 'Stanley', 'precio': '55.00'},
     ]
     
+    # Crear producto y su precio si no existe
     for idx, product in enumerate(products):
-        # Buscar categoría y marca
         categoria = Categoria.objects.get(nombre=product['categoria'])
         marca = Marca.objects.get(nombre=product['marca'])
-        
-        # Crear producto
+
         codigo = f'PROD-{idx+1:03d}'
         codigo_fabricante = f'FAB-{marca.nombre[:3].upper()}-{idx+1:03d}'
-        
+
         producto, created = Producto.objects.get_or_create(
             codigo=codigo,
             defaults={
@@ -90,8 +88,7 @@ def create_products(categories, brands):
                 'categoria': categoria,
             }
         )
-        
-        # Crear precio
+
         if created:
             Precio.objects.create(
                 producto=producto,
@@ -101,8 +98,8 @@ def create_products(categories, brands):
     print(f"✅ {len(products)} productos creados con sus precios")
     return Producto.objects.all()
 
+# Función para crear sucursales de ejemplo
 def create_branches():
-    """Crea sucursales de muestra"""
     branches = [
         {'nombre': 'Tienda Central', 'direccion': 'Calle Principal #123', 'telefono': '555-1234'},
         {'nombre': 'Sucursal Norte', 'direccion': 'Av. del Norte #456', 'telefono': '555-5678'},
@@ -121,12 +118,11 @@ def create_branches():
     print(f"✅ {len(branches)} sucursales creadas")
     return Sucursal.objects.all()
 
+# Función para asignar stock aleatorio a cada producto en cada sucursal
 def create_stock(branches, products):
-    """Crea inventario de muestra"""
     for branch in branches:
         for product in products:
-            # Crear stock aleatorio entre 5 y 50 unidades
-            stock, created = Stock.objects.get_or_create(
+            Stock.objects.get_or_create(
                 sucursal=branch,
                 producto=product,
                 defaults={'cantidad': random.randint(5, 50)}
@@ -134,14 +130,13 @@ def create_stock(branches, products):
     
     print(f"✅ Inventario creado para {branches.count()} sucursales y {products.count()} productos")
 
+# Función para crear usuarios y asignarlos a un grupo
 def create_users_and_groups():
-    """Crea usuarios y grupos de muestra"""
-    # Crear grupo para personal interno si no existe
     grupo_personal, created = Group.objects.get_or_create(name='personal_interno')
     if created:
         print("✅ Grupo 'personal_interno' creado")
     
-    # Crear usuarios para sucursales
+    # Crear usuario por cada sucursal
     sucursales = Sucursal.objects.all()
     for sucursal in sucursales:
         username = f"usuario_{sucursal.nombre.lower().replace(' ', '_')}"
@@ -159,20 +154,17 @@ def create_users_and_groups():
             user.groups.add(grupo_personal)
             print(f"✅ Usuario '{username}' creado y asignado al grupo 'personal_interno'")
 
+# Función para crear pedidos con detalles aleatorios
 def create_sample_orders(branches, products):
-    """Crea pedidos de muestra"""
-    for i in range(5):  # Crear 5 pedidos de muestra
-        # Seleccionar una sucursal aleatoria
+    for i in range(5):  # Crear 5 pedidos
         sucursal = random.choice(branches)
         
-        # Crear pedido
         pedido = Pedido.objects.create(
             sucursal=sucursal,
             estado=random.choice(['pendiente', 'aprobado', 'enviado']),
             notas=f"Pedido de prueba #{i+1} para {sucursal.nombre}"
         )
         
-        # Crear detalles de pedido (entre 1 y 5 productos)
         num_productos = random.randint(1, 5)
         productos_seleccionados = random.sample(list(products), num_productos)
         
@@ -185,17 +177,15 @@ def create_sample_orders(branches, products):
     
     print(f"✅ 5 pedidos de muestra creados")
 
+# Función principal que ejecuta todo el proceso de poblar la base de datos
 def populate():
-    """Función principal para poblar la base de datos"""
     print("🚀 Iniciando población de datos de prueba...")
     
-    # Crear datos básicos
     categorias = create_categories()
     marcas = create_brands()
     productos = create_products(categorias, marcas)
     sucursales = create_branches()
     
-    # Crear relaciones
     create_stock(sucursales, productos)
     create_users_and_groups()
     create_sample_orders(sucursales, productos)
@@ -205,5 +195,6 @@ def populate():
     for user in User.objects.filter(groups__name='personal_interno'):
         print(f"- Usuario: {user.username}, Contraseña: contraseña123")
 
+# Ejecutar el script solo si se llama directamente
 if __name__ == '__main__':
     populate()

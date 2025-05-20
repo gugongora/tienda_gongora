@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Ferremas - Herramientas</title>
+
+  <!-- Enlace a Bootstrap 5 para estilos y componentes responsivos -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Estilos personalizados -->
   <style>
     .navbar-brand img {
       height: 40px;
@@ -17,25 +21,29 @@
 </head>
 <body>
 
-  <!-- Barra superior -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" href="#">
-      <img src="/static/images/logo.png" alt="FERREMAS Logo">
-      <strong class="text-danger">FERREMAS</strong>
-    </a>
-    <form class="d-flex me-auto ms-3" role="search">
-      <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
-      <button class="btn btn-outline-primary" type="submit">Buscar</button>
-    </form>
-    <div class="d-flex">
-      <a href="{% url 'users:login' %}" class="btn btn-outline-secondary me-2">Login</a>
+  <!-- Barra superior con logo, búsqueda y botón de login -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container-fluid">
+      <!-- Logo y nombre de la tienda -->
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="/static/images/logo.png" alt="FERREMAS Logo">
+        <strong class="text-danger">FERREMAS</strong>
+      </a>
+
+      <!-- Formulario de búsqueda -->
+      <form class="d-flex me-auto ms-3" role="search">
+        <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
+        <button class="btn btn-outline-primary" type="submit">Buscar</button>
+      </form>
+
+      <!-- Botón para iniciar sesión -->
+      <div class="d-flex">
+        <a href="{% url 'users:login' %}" class="btn btn-outline-secondary me-2">Login</a>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
-
-  <!-- Barra de navegación -->
+  <!-- Barra de navegación inferior con enlaces -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <ul class="navbar-nav me-auto">
@@ -49,15 +57,18 @@
     </div>
   </nav>
 
-  <!-- Filtros -->
+  <!-- Sección de filtros para categoría y marca -->
   <div class="container mt-4">
     <div class="row mb-3">
+      <!-- Selector de categoría -->
       <div class="col-md-6">
         <label for="categoriaSelect" class="form-label">Filtrar por Categoría:</label>
         <select id="categoriaSelect" class="form-select">
           <option value="">Todas las categorías</option>
         </select>
       </div>
+
+      <!-- Selector de marca -->
       <div class="col-md-6">
         <label for="marcaSelect" class="form-label">Filtrar por Marca:</label>
         <select id="marcaSelect" class="form-select">
@@ -65,6 +76,8 @@
         </select>
       </div>
     </div>
+
+    <!-- Botones para aplicar y limpiar filtros -->
     <div class="row mb-3">
       <div class="col-12">
         <button id="btnFiltrar" class="btn btn-primary">Aplicar filtros</button>
@@ -73,15 +86,19 @@
     </div>
   </div>
 
-  <!-- Contenido de productos -->
+  <!-- Contenedor principal de productos -->
   <div class="container">
+    <!-- Lugar para mostrar los filtros aplicados -->
     <div id="filtros-activos" class="mb-3"></div>
+
+    <!-- Contenedor de las tarjetas de productos -->
     <div class="row" id="producto-container">
       <p>Cargando productos...</p>
     </div>
   </div>
 
   <script>
+    // Elementos del DOM
     const categoriaSelect = document.getElementById('categoriaSelect');
     const marcaSelect = document.getElementById('marcaSelect');
     const contenedor = document.getElementById('producto-container');
@@ -89,25 +106,18 @@
     const btnFiltrar = document.getElementById('btnFiltrar');
     const btnLimpiar = document.getElementById('btnLimpiar');
 
-    // Mapa para almacenar nombres de categorías y marcas
+    // Mapas para almacenar los nombres de categorías y marcas según su ID
     const categoriasMap = new Map();
     const marcasMap = new Map();
 
-    // Cargar filtros
+    // Cargar categorías desde el backend
     fetch('http://127.0.0.1:8000/api/categorias/')
       .then(res => {
-        if (!res.ok) {
-          throw new Error(`Error al cargar categorías: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`Error al cargar categorías: ${res.status}`);
         return res.json();
       })
       .then(data => {
-        console.log('Datos de categorías recibidos:', data);
-        if (!data.results) {
-          console.error('La estructura de datos de categorías no es la esperada:', data);
-          return;
-        }
-
+        if (!data.results) return;
         data.results.forEach(cat => {
           const option = document.createElement('option');
           option.value = cat.id;
@@ -116,24 +126,16 @@
           categoriasMap.set(cat.id.toString(), cat.nombre);
         });
       })
-      .catch(error => {
-        console.error('Error cargando categorías:', error);
-      });
+      .catch(error => console.error('Error cargando categorías:', error));
 
+    // Cargar marcas desde el backend
     fetch('http://127.0.0.1:8000/api/marcas/')
       .then(res => {
-        if (!res.ok) {
-          throw new Error(`Error al cargar marcas: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`Error al cargar marcas: ${res.status}`);
         return res.json();
       })
       .then(data => {
-        console.log('Datos de marcas recibidos:', data);
-        if (!data.results) {
-          console.error('La estructura de datos de marcas no es la esperada:', data);
-          return;
-        }
-
+        if (!data.results) return;
         data.results.forEach(marca => {
           const option = document.createElement('option');
           option.value = marca.id;
@@ -142,26 +144,23 @@
           marcasMap.set(marca.id.toString(), marca.nombre);
         });
       })
-      .catch(error => {
-        console.error('Error cargando marcas:', error);
-      });
+      .catch(error => console.error('Error cargando marcas:', error));
 
-    // Función para actualizar la indicación de filtros activos
+    // Mostrar filtros activos en pantalla
     function actualizarFiltrosActivos() {
       filtrosActivos.innerHTML = '';
-      
       const filtrosAplicados = [];
-      
+
       if (categoriaSelect.value) {
         const nombreCategoria = categoriasMap.get(categoriaSelect.value) || categoriaSelect.value;
         filtrosAplicados.push(`<span class="badge bg-info me-2">Categoría: ${nombreCategoria}</span>`);
       }
-      
+
       if (marcaSelect.value) {
         const nombreMarca = marcasMap.get(marcaSelect.value) || marcaSelect.value;
         filtrosAplicados.push(`<span class="badge bg-info me-2">Marca: ${nombreMarca}</span>`);
       }
-      
+
       if (filtrosAplicados.length > 0) {
         filtrosActivos.innerHTML = `
           <div class="alert alert-info">
@@ -171,42 +170,34 @@
       }
     }
 
-    // Función para cargar productos con filtros
+    // Cargar productos desde el backend aplicando filtros
     function cargarProductos() {
       contenedor.innerHTML = '<p>Cargando productos...</p>';
-      
-      // Construir URL con parámetros
       const url = new URL('http://127.0.0.1:8000/api/productos/');
-      
-      if (categoriaSelect.value) {
-        url.searchParams.append('categoria', categoriaSelect.value);
-      }
-      
-      if (marcaSelect.value) {
-        url.searchParams.append('marca', marcaSelect.value);
-      }
-      
-      console.log('URL de solicitud:', url.toString());
-      
-      // Actualizar interfaz para mostrar filtros activos
+
+      // Agregar filtros como parámetros en la URL
+      if (categoriaSelect.value) url.searchParams.append('categoria', categoriaSelect.value);
+      if (marcaSelect.value) url.searchParams.append('marca', marcaSelect.value);
+
+      // Mostrar filtros activos
       actualizarFiltrosActivos();
 
+      // Hacer la solicitud al backend
       fetch(url)
         .then(response => {
-          if (!response.ok) {
-            throw new Error(`Error en la respuesta del servidor: ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`Error en la respuesta del servidor: ${response.status}`);
           return response.json();
         })
         .then(data => {
-          console.log('Datos de productos recibidos:', data);
           contenedor.innerHTML = '';
           
+          // Si no hay productos, mostrar mensaje
           if (!data.results || data.results.length === 0) {
             contenedor.innerHTML = '<div class="col-12"><p class="alert alert-warning">No se encontraron productos con los filtros seleccionados.</p></div>';
             return;
           }
-          
+
+          // Crear tarjetas por cada producto
           data.results.forEach(producto => {
             const col = document.createElement('div');
             col.className = 'col-md-4 mb-4';
@@ -222,14 +213,16 @@
             const body = document.createElement('div');
             body.className = 'card-body';
 
-      body.innerHTML = `
-            <h5 class="card-title">${producto.nombre}</h5>
-            <p class="card-text"><strong>Código:</strong> ${producto.codigo}</p>
-            <p class="card-text"><strong>Marca:</strong> ${producto.marca_nombre}</p>
-            <p class="card-text"><strong>Categoría:</strong> ${producto.categoria_nombre}</p>
-            <p class="card-text fw-bold">$${producto.precio_actual}</p>
-          `;
+            // Contenido de la tarjeta
+            body.innerHTML = `
+              <h5 class="card-title">${producto.nombre}</h5>
+              <p class="card-text"><strong>Código:</strong> ${producto.codigo}</p>
+              <p class="card-text"><strong>Marca:</strong> ${producto.marca_nombre}</p>
+              <p class="card-text"><strong>Categoría:</strong> ${producto.categoria_nombre}</p>
+              <p class="card-text fw-bold">$${producto.precio_actual}</p>
+            `;
 
+            // Agregar elementos a la tarjeta
             card.appendChild(img);
             card.appendChild(body);
             col.appendChild(card);
@@ -238,11 +231,10 @@
         })
         .catch(error => {
           contenedor.innerHTML = `<div class="col-12"><p class="alert alert-danger">Error al cargar productos: ${error.message}</p></div>`;
-          console.error('Error:', error);
         });
     }
 
-    // Limpiar filtros
+    // Función para limpiar los filtros
     function limpiarFiltros() {
       categoriaSelect.value = '';
       marcaSelect.value = '';
@@ -250,15 +242,15 @@
       cargarProductos();
     }
 
-    // Eventos
+    // Asociar funciones a los botones
     btnFiltrar.addEventListener('click', cargarProductos);
     btnLimpiar.addEventListener('click', limpiarFiltros);
 
-    // Carga inicial
+    // Cargar productos automáticamente cuando la página se abra
     window.addEventListener('DOMContentLoaded', cargarProductos);
   </script>
 
-  <!-- Bootstrap JS -->
+  <!-- Script de Bootstrap para componentes interactivos -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

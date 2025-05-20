@@ -1,68 +1,71 @@
-{% extends 'base.html' %}
+<!-- Sección para consultar el stock de una sucursal -->
+<h2>Consultar stock de una sucursal</h2>
+<form method="post">
+  {% csrf_token %}
+  <!-- Este campo oculto sirve para identificar en la vista que se desea hacer una consulta de stock -->
+  <input type="hidden" name="consultar_stock" value="1">
 
-{% block content %}
-<div class="container">
-    <h2>Dashboard Interno</h2>
+  <!-- Campo para ingresar el ID de la sucursal -->
+  <label for="sucursal_id">ID de Sucursal:</label>
+  <input type="number" name="sucursal_id" id="sucursal_id" required>
 
-    <div class="container">
-        <h2>Panel de control interno</h2>
+  <!-- Botón para enviar el formulario -->
+  <button type="submit">Consultar Stock</button>
+</form>
 
-        <!-- Consultar Stock -->
-        <form method="post">
-            {% csrf_token %}
-            <h4>Consultar stock por ID de sucursal</h4>
-            <input type="text" name="sucursal_id" placeholder="ID de sucursal">
-            <button type="submit" name="consultar_stock">Consultar Stock</button>
-        </form>
+<!-- Si existen datos de stock disponibles, se muestran como JSON (formateados con <pre>) -->
+{% if stock_data %}
+  <pre>{{ stock_data|safe }}</pre>
+{% endif %}
 
-        {% if stock_data %}
-            <h5>Resultado del stock:</h5>
-            <pre>{{ stock_data|safe }}</pre>
-        {% endif %}
+<hr> <!-- Separador visual -->
 
-        <hr>
+<!-- Sección para consultar el detalle de un pedido -->
+<h2>Consultar detalle de un pedido</h2>
+<form method="post">
+  {% csrf_token %}
+  <!-- Campo oculto para indicar que se quiere consultar un pedido -->
+  <input type="hidden" name="consultar_pedido" value="1">
 
-        <!-- Consultar Pedido -->
-        <form method="post">
-            {% csrf_token %}
-            <h4>Consultar detalle del pedido</h4>
-            <input type="text" name="pedido_id" placeholder="ID del pedido">
-            <button type="submit" name="consultar_pedido">Ver Detalle</button>
-        </form>
+  <!-- Campo para ingresar el ID del pedido -->
+  <label for="pedido_id">ID de Pedido:</label>
+  <input type="number" name="pedido_id" id="pedido_id" required>
 
-        {% if pedido_detalle %}
-            <h5>Detalle del pedido:</h5>
-            <pre>{{ pedido_detalle|safe }}</pre>
-        {% endif %}
+  <!-- Botón para enviar el formulario -->
+  <button type="submit">Consultar Pedido</button>
+</form>
 
-        <hr>
+<!-- Si hay datos del pedido, se muestran como JSON -->
+{% if pedido_detalle %}
+  <pre>{{ pedido_detalle|safe }}</pre>
+{% endif %}
 
-        <!-- Realizar Pedido -->
-        <form method="post">
-            {% csrf_token %}
-            <h4>Realizar pedido desde sucursal</h4>
-            <div class="form-group">
-                <label for="sucursal_origen">ID de sucursal origen:</label>
-                <input type="text" id="sucursal_origen" name="sucursal_origen" placeholder="ID de sucursal" required>
-            </div>
-            <div class="form-group">
-                <label for="productos">Productos (formato: id_producto:cantidad,id_producto:cantidad)</label>
-                <input type="text" id="productos" name="productos" placeholder="Ejemplo: PROD-001:2,PROD-003:5" required>
-                <small class="form-text text-muted">Ingrese códigos de producto y cantidades (ej: PROD-001:2,PROD-003:5)</small>
-            </div>
-            <div class="form-group">
-                <label for="observaciones">Observaciones adicionales:</label>
-                <textarea id="observaciones" name="observaciones" placeholder="Observaciones adicionales"></textarea>
-            </div>
-            <button type="submit" name="realizar_pedido">Enviar Pedido</button>
-        </form>
+<hr> <!-- Separador visual -->
 
-        {% if pedido_resultado %}
-            <h5>Resultado del pedido:</h5>
-            <div class="alert {% if pedido_resultado.error %}alert-danger{% else %}alert-success{% endif %}">
-                <pre>{{ pedido_resultado|safe }}</pre>
-            </div>
-        {% endif %}
-    </div>
-</div>
-{% endblock %}
+<!-- Sección para crear un nuevo pedido -->
+<h2>Realizar un nuevo pedido</h2>
+<form method="post">
+  {% csrf_token %}
+  <!-- Campo oculto para identificar que se desea realizar un pedido -->
+  <input type="hidden" name="realizar_pedido" value="1">
+
+  <!-- Campo para ingresar el ID de la sucursal origen -->
+  <label for="sucursal_origen">Sucursal Origen (ID):</label>
+  <input type="number" name="sucursal_origen" id="sucursal_origen" required>
+
+  <!-- Campo para ingresar los productos con su cantidad en formato "codigo:cantidad" -->
+  <label for="productos">Productos (formato: código:cantidad, código2:cantidad2):</label>
+  <input type="text" name="productos" id="productos" placeholder="ej: PROD-011:4, PROD-008:10" required>
+
+  <!-- Campo de texto para observaciones adicionales del pedido -->
+  <label for="observaciones">Observaciones:</label>
+  <textarea name="observaciones" id="observaciones"></textarea>
+
+  <!-- Botón para enviar el formulario de nuevo pedido -->
+  <button type="submit">Enviar Pedido</button>
+</form>
+
+<!-- Si hay resultado del pedido (éxito o error), se muestra en pantalla -->
+{% if pedido_resultado %}
+  <pre>{{ pedido_resultado|safe }}</pre>
+{% endif %}
