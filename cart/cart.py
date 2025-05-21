@@ -1,24 +1,34 @@
+import requests
 from decimal import Decimal
-from store.models import Product
+from django.http import Http404
+
+API_BASE_URL = "http://127.0.0.1:8000/api/productos/"
+
+def fetch_product_from_api(product_id):
+    response = requests.get(f"{API_BASE_URL}{product_id}/")
+    if response.status_code == 200:
+        return response.json()
+    raise Http404("Producto no encontrado")
 
 def get_cart_items(request):
     cart = request.session.get('cart', {})
-    cart_items = []
+    items = []
 
-    for product_id, quantity in cart.items():
+    for product_id_str, quantity in cart.items():
         try:
-            product = Product.objects.get(id=product_id)
-            cart_items.append({
-                'product': product,
+            product_data = fetch_product_from_api(product_id_str)
+            precios = product_data.get('precios', [])
+            precio_actual = Decimal(precios[0]['valor']) if precios else Decimal(0)
+            subtotal = precio_actual * quantity
+
+            items.append({
+                'product_id': int(product_id_str),
+                'product_name': product_data['nombre'],
                 'quantity': quantity,
-                'subtotal': product.price * quantity
+                'subtotal': subtotal
             })
-        except Product.DoesNotExist:
+
+        except Http404:
             continue
 
-    return cart_items
-
-def clear_cart(request):
-    if 'cart' in request.session:
-        del request.session['cart']
-
+    return items

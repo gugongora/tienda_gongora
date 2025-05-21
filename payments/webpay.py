@@ -16,7 +16,8 @@ def crear_transaccion(session_id, amount, buy_order, return_url):
         "amount": float(amount),
         "return_url": return_url,
     }
-
+    
     response = requests.post(url, headers=headers, json=data)
     response.raise_for_status()  # Lanza excepción si falla
+    
     return response.json()       # Devuelve dict con 'token' y 'url'

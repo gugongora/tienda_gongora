@@ -1,30 +1,31 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
-from .webpay import crear_transaccion
 import requests
-from django.urls import reverse
-from django.conf import settings
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
-
+from django.urls import reverse
 from orders.models import Order
-
-
 from .webpay_conf import WEBPAY_API_BASE_URL, WEBPAY_API_KEY_ID, WEBPAY_API_KEY_SECRET
 
-def iniciar_pago(request):
-    # Simula datos de compra
-    session_id = str(request.user.id if request.user.is_authenticated else "session_test")
+# Diccionario de mensajes según response_code de Transbank
+WEBPAY_RESPONSES = {
+    0: "Transacción aprobada",
+    -1: "Rechazo de la transacción",
+    -2: "Transacción debe reintentarse",
+    -3: "Error en transacción",
+    -4: "Rechazo de transacción",
+    -5: "Rechazo por error de tasa",
+    -6: "Excede cupo máximo mensual",
+    -7: "Excede límite diario por transacción",
+    -8: "Rubro no autorizado",
+}
 
+def iniciar_pago(request):
+    # Solo para pruebas directas (no se usa en checkout normal)
+    session_id = str(request.user.id if request.user.is_authenticated else "anon")
     amount = 19990
     buy_order = "orden123"
-
-    resultado = crear_transaccion(session_id, amount, buy_order)
-
-    # Redirige al formulario de pago
-    return redirect(resultado["url"] + "?token_ws=" + resultado["token"])
-
-
-
+    return_url = request.build_absolute_uri(reverse("payments:webpay_confirmacion"))
+    resultado = crear_transaccion(session_id, amount, buy_order, return_url)
+    return redirect(f"{resultado['url']}?token_ws={resultado['token']}")
 
 
 def webpay_confirmacion(request):
@@ -41,7 +42,6 @@ def webpay_confirmacion(request):
 
     response = requests.put(url, headers=headers)
     data = response.json()
-    print(data)
 
     try:
         order = Order.objects.get(token=token)
@@ -51,9 +51,14 @@ def webpay_confirmacion(request):
     if data.get("status") == "AUTHORIZED":
         order.status = "paid"
         order.save()
-        request.session['cart'] = {}  # limpiar carrito
+        request.session['cart'] = {}  # Limpiar carrito después del pago
         return redirect('orders:order_confirmation', order_id=order.id)
     else:
         order.status = "cancelled"
         order.save()
-        return HttpResponse(f"Pago fallido: {data.get('response_code', 'Error desconocido')}", status=400)
+        mensaje = WEBPAY_RESPONSES.get(data.get("response_code"), "Error desconocido")
+        return render(request, "orders/payment_failed.html", {
+            "order": order,
+            "mensaje": mensaje,
+            "detalle": data,
+        })

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 p-8 bg-white shadow border rounded">
+  <h2 class="text-2xl font-bold text-red-600 mb-4">❌ Pago fallido</h2>
+  <p class="text-gray-700 mb-2">Lamentablemente, tu orden <strong>#{{ order.id }}</strong> no fue procesada correctamente.</p>
+  <p class="text-gray-600 mb-4">Motivo: <span class="font-semibold">{{ mensaje }}</span></p>
+
+  <a href="{% url 'store:product_list' %}" class="inline-block bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded">
+    Volver a la tienda
+  </a>
+</div>
+{% endblock %}

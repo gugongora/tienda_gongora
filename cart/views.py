@@ -1,34 +1,41 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from productos.models import Producto  # ← CORREGIDO: usamos el modelo correcto
+# cart/views.py
+import requests
+from decimal import Decimal
+from .cart import get_cart_items
+from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.http import Http404
+from types import SimpleNamespace
+
+API_BASE_URL = "http://127.0.0.1:8000/api/productos/"
+
+def fetch_product_from_api(product_id):
+    response = requests.get(f"{API_BASE_URL}{product_id}/")
+    if response.status_code == 200:
+        data = response.json()
+        # Asegurarse de que el ID esté incluido
+        data['id'] = int(product_id)
+        return SimpleNamespace(**data)
+    raise Http404("Producto no encontrado")
+
 
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Producto, id=product_id)  # ← CORREGIDO
+    try:
+        product = fetch_product_from_api(product_id)
+    except Http404:
+        messages.error(request, "Producto no encontrado.")
+        return redirect('store:product_list')
+
     cart = request.session.get('cart', {})
-
-    if str(product.id) in cart:
-        cart[str(product.id)] += 1
-    else:
-        cart[str(product.id)] = 1
-
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
     request.session['cart'] = cart
-    messages.success(request, f"“{product.nombre}” se ha agregado al carrito.")  # ← usamos .nombre
+
+    messages.success(request, f"“{product.nombre}” se ha agregado al carrito.")
     return redirect(request.META.get('HTTP_REFERER', 'store:product_list'))
 
 def view_cart(request):
-    cart = request.session.get('cart', {})
-    cart_items = []
-    total = 0
-
-    for product_id_str, quantity in cart.items():
-        product = get_object_or_404(Producto, id=int(product_id_str))  # ← CORREGIDO
-        subtotal = product.precios.first().valor * quantity  # ← usamos precios[0]
-        total += subtotal
-        cart_items.append({
-            'product': product,
-            'quantity': quantity,
-            'subtotal': subtotal
-        })
+    cart_items = get_cart_items(request)
+    total = sum(item['subtotal'] for item in cart_items)
 
     return render(request, 'cart/cart_detail.html', {
         'cart_items': cart_items,
@@ -37,35 +44,26 @@ def view_cart(request):
 
 def remove_from_cart(request, product_id):
     cart = request.session.get('cart', {})
-    product_id_str = str(product_id)
-
-    if product_id_str in cart:
-        if cart[product_id_str] > 1:
-            cart[product_id_str] -= 1
+    pid = str(product_id)
+    if pid in cart:
+        if cart[pid] > 1:
+            cart[pid] -= 1
         else:
-            del cart[product_id_str]
-
+            del cart[pid]
     request.session['cart'] = cart
     return redirect('cart:view_cart')
 
 def remove_all_from_cart(request, product_id):
     cart = request.session.get('cart', {})
-    product_id_str = str(product_id)
-
-    if product_id_str in cart:
-        del cart[product_id_str]
-
+    pid = str(product_id)
+    if pid in cart:
+        del cart[pid]
     request.session['cart'] = cart
     return redirect(request.META.get('HTTP_REFERER', 'cart:view_cart'))
 
 def increase_quantity(request, product_id):
     cart = request.session.get('cart', {})
-    product_id_str = str(product_id)
-
-    if product_id_str in cart:
-        cart[product_id_str] += 1
-    else:
-        cart[product_id_str] = 1
-
+    pid = str(product_id)
+    cart[pid] = cart.get(pid, 0) + 1
     request.session['cart'] = cart
     return redirect('cart:view_cart')

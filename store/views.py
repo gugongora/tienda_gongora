@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 import requests
 import json
+from django.http import Http404
 
 # Función para verificar si el usuario pertenece al grupo 'personal_interno'
 def is_internal_person(user):
@@ -25,10 +26,18 @@ def product_list(request):
     # Renderiza la plantilla con los productos filtrados
     return render(request, 'store/product_list.html', {'products': products})
 
-# Vista para mostrar el detalle de un producto específico
+import requests
+from django.shortcuts import render
+
 def product_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id)  # Si no encuentra el producto, lanza error 404
-    return render(request, 'store/product_detail.html', {'product': product})
+    response = requests.get(f'http://127.0.0.1:8000/api/productos/{product_id}/')
+    if response.status_code == 200:
+        product_data = response.json()
+        product_data['id'] = product_id  # ← asegúrate de pasar 'id' explícitamente
+        return render(request, 'store/product_detail.html', {'product': product_data})
+    else:
+        return render(request, 'store/product_detail.html', {'product': None})
+
 
 # Vista para buscar productos por nombre
 def search(request):
