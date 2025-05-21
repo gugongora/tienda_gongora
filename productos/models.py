@@ -23,8 +23,11 @@ class Marca(models.Model):
 
 # Modelo que representa un producto
 class Producto(models.Model):
-    # Código único del producto (clave primaria)
-    codigo = models.CharField(max_length=50, unique=True, primary_key=True)
+    # ID automático como clave primaria
+    id = models.AutoField(primary_key=True)
+
+    # Código único del producto (pero ya no es primary key)
+    codigo = models.CharField(max_length=50, unique=True)
     
     # Código del fabricante (puede no ser único)
     codigo_fabricante = models.CharField(max_length=50)
@@ -35,19 +38,17 @@ class Producto(models.Model):
     # Descripción del producto (opcional)
     descripcion = models.TextField(blank=True)
     
-    # Relación con la marca (no se permite eliminar la marca si hay productos asociados)
+    # Relación con la marca
     marca = models.ForeignKey(Marca, on_delete=models.PROTECT)
     
-    # Relación con la categoría (tampoco se puede eliminar si hay productos asociados)
+    # Relación con la categoría
     categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
     
-    # Fecha de creación del producto (se asigna automáticamente al crearlo)
+    # Fecha de creación
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     
-    # Representación legible del producto
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
-
 # Modelo que representa el historial de precios de un producto
 class Precio(models.Model):
     # Relación con el producto al que pertenece este precio

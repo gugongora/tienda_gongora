@@ -6,7 +6,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}Tienda Gongora{% endblock %}</title>
+  <title>{% block title %}Ferremas{% endblock %}</title>
   {% tailwind_css %}
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
@@ -15,107 +15,96 @@
   <header>
     <nav class="bg-white shadow">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <!-- Logo -->
         <a href="{% url 'store:product_list' %}" class="flex items-center gap-2">
           <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-12 w-auto">
-          <span class="text-xl font-bold tracking-wide">Tienda Góngora</span>
+          <span class="text-4xl font-bold tracking-wide">Ferremas</span>
         </a>
 
-<!-- Login, búsqueda y carrito -->
-<div class="flex items-center gap-4">
+        <div class="flex items-center gap-4">
+          <button onclick="openCart()" class="relative text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">
+            🛒 Carrito
+            {% cart_count as total_cart %}
+            {% if total_cart > 0 %}
+              <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
+                {{ total_cart }}
+              </span>
+            {% endif %}
+          </button>
 
-  <!-- Botón carrito -->
-  <button onclick="openCart()" class="relative text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">
-    🛒 Carrito
-    {% cart_count as total_cart %}
-    {% if total_cart > 0 %}
-      <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
-        {{ total_cart }}
-      </span>
-    {% endif %}
-  </button>
+          <form method="get" action="{% url 'store:search' %}" class="hidden md:flex">
+            <div class="relative">
+              <input type="search" name="q" placeholder="Buscar..."
+                     class="border border-gray-300 rounded pl-3 pr-9 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300">
+              <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-black hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-4.35-4.35M17.25 10.5a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
+                </svg>
+              </button>
+            </div>
+          </form>
 
-  <!-- Barra de búsqueda -->
-<form method="get" action="{% url 'store:search' %}" class="hidden md:flex">
-  <div class="relative">
-    <input type="search" name="q" placeholder="Buscar..."
-           class="border border-gray-300 rounded pl-3 pr-9 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300">
-    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-black hover:text-gray-700">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-           viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M21 21l-4.35-4.35M17.25 10.5a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
-      </svg>
-    </button>
-  </div>
-</form>
-
-  <!-- Usuario -->
-{% if user.is_authenticated %}
-  <button onclick="openUser()" class="text-gray-600 hover:text-gray-800 text-xl" title="Cuenta">
-    👤
-  </button>
-{% else %}
-  <a href="{% url 'users:login' %}" class="text-sm text-blue-600 hover:underline">Ingresar</a>
-{% endif %}
-</div>
+          {% if user.is_authenticated %}
+            <button onclick="openUser()" class="text-gray-600 hover:text-gray-800 text-xl" title="Cuenta">
+              👤
+            </button>
+          {% else %}
+            <a href="{% url 'users:login' %}" class="text-sm text-blue-600 hover:underline">Ingresar</a>
+          {% endif %}
+        </div>
       </div>
     </nav>
 
-    <!-- Navegación secundaria -->
     <div class="bg-gray-800 text-white text-sm py-2 text-center space-x-6">
       <a href="{% url 'store:product_list' %}" class="hover:underline">Home</a>
       <a href="{% url 'store:product_list' %}?category=herramienta" class="hover:underline">Herramientas</a>
-      <button class="hover:underline" data-modal-target="dollarModal">💱 Conversor USD → CLP</button>
+      <button class="hover:underline" data-modal-target="dollarModal">Conversor USD → CLP</button>
     </div>
   </header>
 
-  <!-- CONTENIDO -->
   <main class="max-w-7xl mx-auto px-4 py-8">
-{% if messages %}
-  <div id="flash-messages" class="fixed top-4 inset-x-0 flex justify-center z-50 pointer-events-none">
-    {% for message in messages %}
-      <div class="relative bg-emerald-100 border border-emerald-400 text-emerald-700 px-6 py-3 rounded shadow-lg animate-fade-in-out max-w-md w-full pointer-events-auto">
-        <button onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-emerald-700 hover:text-red-600 text-lg font-bold">&times;</button>
-        {{ message }}
+    {% if messages %}
+      <div id="flash-messages" class="fixed top-4 inset-x-0 flex justify-center z-50 pointer-events-none">
+        {% for message in messages %}
+          <div class="relative bg-emerald-100 border border-emerald-400 text-emerald-700 px-6 py-3 rounded shadow-lg animate-fade-in-out max-w-md w-full pointer-events-auto">
+            <button onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-emerald-700 hover:text-red-600 text-lg font-bold">&times;</button>
+            {{ message }}
+          </div>
+        {% endfor %}
       </div>
-    {% endfor %}
-  </div>
-{% endif %}
+    {% endif %}
     {% block content %}{% endblock %}
   </main>
 
+<!-- Conversor USD Modal -->
+<div id="dollarModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+  <!-- Fondo oscuro personalizado -->
+  <div class="absolute inset-0" style="background-color: rgba(0, 0, 0, 0.3);"></div>
 
-
-
-
-  <!-- Modal conversor USD -->
-  <div id="dollarModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-      <form id="converter-form">
-        <div class="px-6 py-4 border-b flex justify-between items-center">
-          <h5 class="font-bold text-lg">Conversor de USD a CLP</h5>
-          <button type="button" class="text-gray-500 hover:text-red-500" data-modal-close>&times;</button>
-        </div>
-        <div class="p-6 space-y-4">
-          <label class="block text-sm font-medium text-gray-700">Monto en USD:</label>
-          <input type="number" step="0.01" id="monto-usd" required class="w-full border border-gray-300 rounded px-4 py-2">
-          <div id="resultado" class="text-green-600 hidden"></div>
-          <div id="error" class="text-red-600 hidden"></div>
-        </div>
-        <div class="px-6 py-4 border-t flex justify-end">
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Convertir</button>
-        </div>
-      </form>
-    </div>
+  <!-- Contenido del modal -->
+  <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md z-10">
+    <form id="converter-form">
+      <div class="px-6 py-4 border-b flex justify-between items-center">
+        <h5 class="font-bold text-lg">Conversor de USD a CLP</h5>
+        <button type="button" class="text-gray-500 hover:text-red-500" data-modal-close>&times;</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <label class="block text-sm font-medium text-gray-700">Monto en USD:</label>
+        <input type="number" step="0.01" id="monto-usd" required class="w-full border border-gray-300 rounded px-4 py-2">
+        <div id="resultado" class="text-green-600 hidden"></div>
+        <div id="error" class="text-red-600 hidden"></div>
+      </div>
+      <div class="px-6 py-4 border-t flex justify-end">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Convertir</button>
+      </div>
+    </form>
   </div>
+</div>
 
-<!-- Overlay que incluye el fondo semitransparente y el sidebar -->
-<div id="cartOverlay" class="fixed inset-0 z-50 hidden">
-  <!-- Fondo oscuro semi-transparente -->
-  <div onclick="closeCart()" class="absolute inset-0" style="background-color: rgba(0, 0, 0, 0.5);"></div>
-
-  <!-- Sidebar flotante -->
+<!-- Cart Sidebar -->
+<div id="cartOverlay" class="fixed inset-0 z-50 hidden" onclick="handleCartOverlayClick(event)">
+  <div class="absolute inset-0" style="background-color: rgba(0, 0, 0, 0.3);"></div>
   <div id="cartSidebar" class="absolute top-0 right-0 h-full w-80 bg-white shadow-lg transform translate-x-full transition-transform duration-300 overflow-y-auto">
     <div class="flex justify-between items-center p-4 border-b">
       <h2 class="text-lg font-semibold">Tu carrito</h2>
@@ -125,26 +114,24 @@
       {% with cart=request.session.cart %}
         {% if cart %}
           <ul class="divide-y divide-gray-200 mb-4">
-{% for product_id, quantity in cart.items %}
-  {% with product=product_id|to_int|get_product %}
-    <li class="py-2 flex items-center justify-between gap-2">
-      <div class="flex flex-col text-sm">
-        <span class="font-medium">{{ product.name }}</span>
-        <span class="text-gray-500">x{{ quantity }}</span>
-      </div>
-<a href="{% url 'cart:remove_all_from_cart' product.id %}"
-   onclick="return confirm('¿Eliminar este producto del carrito?')"
-   class="text-red-500 hover:text-red-700"
-   title="Eliminar del carrito">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-       stroke="currentColor" class="w-5 h-5">
-    <path stroke-linecap="round" stroke-linejoin="round"
-          d="M6 18L18 6M6 6l12 12" />
-  </svg>
-</a>
-    </li>
-  {% endwith %}
-{% endfor %}
+            {% for product_id, quantity in cart.items %}
+              {% with product=product_id|to_int|get_product %}
+                {% if product %}
+                  <li class="py-2 flex items-center justify-between gap-2">
+                    <div class="flex flex-col text-sm">
+                      <span class="font-medium">{{ product.nombre }}</span>
+                      <span class="text-gray-500">x{{ quantity }}</span>
+                    </div>
+                    <a href="{% url 'cart:remove_all_from_cart' product.id %}" class="text-red-500 hover:text-red-700" title="Eliminar del carrito">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                           stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </a>
+                  </li>
+                {% endif %}
+              {% endwith %}
+            {% endfor %}
           </ul>
           <a href="{% url 'cart:view_cart' %}" class="block text-center bg-emerald-500 hover:bg-emerald-600 text-white py-2 px-4 rounded">
             Ir al Checkout
@@ -157,12 +144,9 @@
   </div>
 </div>
 
-<!-- Overlay y sidebar de usuario -->
-<div id="userOverlay" class="fixed inset-0 z-50 hidden">
-  <!-- Fondo oscuro -->
-  <div onclick="closeUser()" class="absolute inset-0" style="background-color: rgba(0, 0, 0, 0.3);"></div>
-
-  <!-- Sidebar de usuario -->
+<!-- User Sidebar -->
+<div id="userOverlay" class="fixed inset-0 z-50 hidden" onclick="handleUserOverlayClick(event)">
+  <div class="absolute inset-0" style="background-color: rgba(0, 0, 0, 0.3);"></div>
   <div id="userSidebar" class="absolute top-0 right-0 h-full w-64 bg-white shadow-lg transform translate-x-full transition-transform duration-300 overflow-y-auto">
     <div class="flex justify-between items-center p-4 border-b">
       <h2 class="text-lg font-semibold">Mi cuenta</h2>
@@ -179,7 +163,7 @@
   </div>
 </div>
 
-  <!-- JS para abrir/cerrar modales -->
+  <!-- JS -->
   <script>
     document.querySelectorAll('[data-modal-target]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -193,34 +177,41 @@
         btn.closest('.fixed').classList.add('hidden');
       });
     });
+
+    function openCart() {
+      document.getElementById("cartOverlay").classList.remove("hidden");
+      document.getElementById("cartSidebar").classList.remove("translate-x-full");
+    }
+
+    function closeCart() {
+      document.getElementById("cartSidebar").classList.add("translate-x-full");
+      setTimeout(() => {
+        document.getElementById("cartOverlay").classList.add("hidden");
+      }, 300);
+    }
+
+    function handleCartOverlayClick(event) {
+      const sidebar = document.getElementById("cartSidebar");
+      if (!sidebar.contains(event.target)) closeCart();
+    }
+
+    function openUser() {
+      document.getElementById("userOverlay").classList.remove("hidden");
+      document.getElementById("userSidebar").classList.remove("translate-x-full");
+    }
+
+    function closeUser() {
+      document.getElementById("userSidebar").classList.add("translate-x-full");
+      setTimeout(() => {
+        document.getElementById("userOverlay").classList.add("hidden");
+      }, 300);
+    }
+
+    function handleUserOverlayClick(event) {
+      const sidebar = document.getElementById("userSidebar");
+      if (!sidebar.contains(event.target)) closeUser();
+    }
   </script>
-
-<script>
-  function openCart() {
-    document.getElementById("cartOverlay").classList.remove("hidden");
-    document.getElementById("cartSidebar").classList.remove("translate-x-full");
-  }
-
-  function closeCart() {
-    document.getElementById("cartSidebar").classList.add("translate-x-full");
-    setTimeout(() => {
-      document.getElementById("cartOverlay").classList.add("hidden");
-    }, 300); // espera que termine la transición
-  }
-</script>
-<script>
-  function openUser() {
-    document.getElementById("userOverlay").classList.remove("hidden");
-    document.getElementById("userSidebar").classList.remove("translate-x-full");
-  }
-
-  function closeUser() {
-    document.getElementById("userSidebar").classList.add("translate-x-full");
-    setTimeout(() => {
-      document.getElementById("userOverlay").classList.add("hidden");
-    }, 300);
-  }
-</script>
 
   <script src="{% static 'js/conversor.js' %}"></script>
 </body>

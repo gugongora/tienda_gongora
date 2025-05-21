@@ -16,12 +16,12 @@ class RedirectByGroupMiddleware:
             path_actual = resolve(request.path_info).url_name
 
             # Si es personal interno y está en la vista 'product_list', redirige al dashboard interno
-            if grupo_interno and path_actual == 'product_list':
-                return redirect('store:dashboard_interno')
+            #if grupo_interno and path_actual == 'product_list':
+            #  return redirect('store:dashboard_interno')
 
             # Si no es personal interno y está en el dashboard interno, redirige a la lista de productos
-            elif not grupo_interno and path_actual == 'dashboard_interno':
-                return redirect('store:product_list')
+            #elif not grupo_interno and path_actual == 'dashboard_interno':
+            #    return redirect('store:product_list')
 
         # Si no se cumple ninguna condición, sigue con el flujo normal de la petición
         return self.get_response(request)

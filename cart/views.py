@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from store.models import Product
+from productos.models import Producto  # ← CORREGIDO: usamos el modelo correcto
 from django.contrib import messages
 
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Producto, id=product_id)  # ← CORREGIDO
     cart = request.session.get('cart', {})
 
     if str(product.id) in cart:
@@ -12,8 +12,7 @@ def add_to_cart(request, product_id):
         cart[str(product.id)] = 1
 
     request.session['cart'] = cart
-
-    messages.success(request, f"“{product.name}” se ha agregado al carrito.")
+    messages.success(request, f"“{product.nombre}” se ha agregado al carrito.")  # ← usamos .nombre
     return redirect(request.META.get('HTTP_REFERER', 'store:product_list'))
 
 def view_cart(request):
@@ -22,8 +21,8 @@ def view_cart(request):
     total = 0
 
     for product_id_str, quantity in cart.items():
-        product = get_object_or_404(Product, id=int(product_id_str))  # Convertimos product_id de nuevo a entero
-        subtotal = product.price * quantity
+        product = get_object_or_404(Producto, id=int(product_id_str))  # ← CORREGIDO
+        subtotal = product.precios.first().valor * quantity  # ← usamos precios[0]
         total += subtotal
         cart_items.append({
             'product': product,
@@ -42,13 +41,12 @@ def remove_from_cart(request, product_id):
 
     if product_id_str in cart:
         if cart[product_id_str] > 1:
-            cart[product_id_str] -= 1  # Resta 1 unidad
+            cart[product_id_str] -= 1
         else:
-            del cart[product_id_str]  # Elimina el producto si era 1
+            del cart[product_id_str]
 
     request.session['cart'] = cart
     return redirect('cart:view_cart')
-
 
 def remove_all_from_cart(request, product_id):
     cart = request.session.get('cart', {})

@@ -15,7 +15,7 @@ class ProductoListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Producto
-        fields = ['codigo', 'nombre', 'marca_nombre', 'categoria_nombre', 'precio_actual']
+        fields = ['id', 'codigo', 'nombre', 'marca_nombre', 'categoria_nombre', 'precio_actual']
     
     def get_precio_actual(self, obj):
         precio = obj.precios.first()

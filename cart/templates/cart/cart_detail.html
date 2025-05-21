@@ -25,48 +25,46 @@
       <h3 class="text-xl font-bold text-gray-800 mb-4">Resumen del Carrito</h3>
       <ul class="divide-y divide-gray-200 mb-4">
         {% for item in cart_items %}
+          {% if item.product.id %}
           <li class="py-3 flex gap-4 items-center">
 
             <!-- Miniatura -->
-            {% if item.product.image %}
-              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 object-cover rounded-md shadow">
-            {% else %}
-              <img src="{% static 'images/no-image.jpg' %}" alt="Sin imagen" class="w-16 h-16 object-cover rounded-md shadow">
-            {% endif %}
+            <img src="{% static 'images/no-image.jpg' %}" alt="{{ item.product.nombre }}" class="w-16 h-16 object-cover rounded-md shadow">
 
-<!-- Info + control de cantidad -->
-<div class="flex-1">
-  <p class="font-medium text-gray-800">{{ item.product.name }}</p>
-  <div class="flex items-center gap-2 mt-1">
+            <!-- Info + control de cantidad -->
+            <div class="flex-1">
+              <p class="font-medium text-gray-800">{{ item.product.nombre }}</p>
+              <div class="flex items-center gap-2 mt-1">
 
-    <!-- Botón restar -->
-    <a href="{% url 'cart:remove_from_cart' item.product.id %}"
-       class="w-6 h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-bold text-sm">
-      –
-    </a>
+                <!-- Botón restar -->
+                <a href="{% url 'cart:remove_from_cart' item.product.id %}"
+                   class="w-6 h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-bold text-sm">
+                  –
+                </a>
 
-    <!-- Cantidad -->
-    <span class="text-sm">{{ item.quantity }}</span>
+                <!-- Cantidad -->
+                <span class="text-sm">{{ item.quantity }}</span>
 
-    <!-- Botón sumar -->
-    <a href="{% url 'cart:increase_quantity' item.product.id %}"
-       class="w-6 h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-bold text-sm">
-      +
-    </a>
+                <!-- Botón sumar -->
+                <a href="{% url 'cart:increase_quantity' item.product.id %}"
+                   class="w-6 h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-bold text-sm">
+                  +
+                </a>
 
-    <!-- Botón eliminar todo -->
-    <a href="{% url 'cart:remove_all_from_cart' item.product.id %}"
-       class="ml-auto text-red-500 hover:text-red-700 text-lg font-semibold"
-       title="Eliminar producto del carrito">
-      Eliminar
-    </a>
+                <!-- Botón eliminar todo -->
+                <a href="{% url 'cart:remove_all_from_cart' item.product.id %}"
+                   class="ml-auto text-red-500 hover:text-red-700 text-lg font-semibold"
+                   title="Eliminar producto del carrito">
+                  Eliminar
+                </a>
 
-  </div>
+              </div>
 
-  <p class="text-sm text-gray-500 mt-1">Subtotal: ${{ item.subtotal }}</p>
-</div>
+              <p class="text-sm text-gray-500 mt-1">Subtotal: ${{ item.subtotal }}</p>
+            </div>
 
           </li>
+          {% endif %}
         {% endfor %}
       </ul>
 

@@ -47,7 +47,56 @@ INSTALLED_APPS = [
     'conversion',
     'tailwind',
     'theme',
+    'rest_framework',
+    'corsheaders',
+    'drf_yasg',
+    'productos',
+    'operaciones',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    # Añadir los dominios de tus sucursales y clientes externos
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
+}
+# Configuración para JWT
+from datetime import timedelta
+
+
+# Configuración del paquete Simple JWT para la autenticación basada en tokens
+SIMPLE_JWT = {
+    # Tiempo de vida del token de acceso (usado para autenticar al usuario)
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # El token de acceso dura 1 día
+
+    # Tiempo de vida del token de refresco (usado para obtener un nuevo token de acceso)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # El token de refresco dura 7 días
+
+    # Si se establece en True, cada vez que se use un refresh token, se generará uno nuevo
+    'ROTATE_REFRESH_TOKENS': False,  # En este caso, no se rotan los tokens de refresco
+
+    # Algoritmo de encriptación utilizado para firmar los tokens
+    'ALGORITHM': 'HS256',
+
+    # Clave secreta utilizada para firmar los tokens (debe estar definida en settings.py)
+    'SIGNING_KEY': SECRET_KEY,
+
+    # Tipo de autorización en el encabezado HTTP (Authorization: Bearer <token>)
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# Indica el módulo raíz que contiene las rutas (URL) del proyecto Django
+ROOT_URLCONF = 'tienda_gongora.urls'  # Aquí se define el archivo principal con las URLs de la aplicación
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,6 +106,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'tienda_gongora.middleware.RedirectByGroupMiddleware',
 ]
 
 ROOT_URLCONF = 'tienda_gongora.urls'

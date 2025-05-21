@@ -232,6 +232,9 @@
   .pointer-events-none {
     pointer-events: none;
   }
+  .visible {
+    visibility: visible;
+  }
   .absolute {
     position: absolute;
   }
@@ -283,6 +286,12 @@
   .z-50 {
     z-index: 50;
   }
+  .col-12 {
+    grid-column: 12;
+  }
+  .col-span-3 {
+    grid-column: span 3 / span 3;
+  }
   .container {
     width: 100%;
     @media (width >= 40rem) {
@@ -304,8 +313,23 @@
   .mx-auto {
     margin-inline: auto;
   }
+  .ms-2 {
+    margin-inline-start: calc(var(--spacing) * 2);
+  }
+  .ms-3 {
+    margin-inline-start: calc(var(--spacing) * 3);
+  }
+  .me-2 {
+    margin-inline-end: calc(var(--spacing) * 2);
+  }
+  .me-auto {
+    margin-inline-end: auto;
+  }
   .mt-1 {
     margin-top: calc(var(--spacing) * 1);
+  }
+  .mt-4 {
+    margin-top: calc(var(--spacing) * 4);
   }
   .mt-6 {
     margin-top: calc(var(--spacing) * 6);
@@ -315,6 +339,9 @@
   }
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
+  }
+  .mb-3 {
+    margin-bottom: calc(var(--spacing) * 3);
   }
   .mb-4 {
     margin-bottom: calc(var(--spacing) * 4);
@@ -360,6 +387,9 @@
   }
   .h-64 {
     height: calc(var(--spacing) * 64);
+  }
+  .h-100 {
+    height: calc(var(--spacing) * 100);
   }
   .h-\[400px\] {
     height: 400px;
@@ -546,6 +576,9 @@
   }
   .bg-red-600 {
     background-color: var(--color-red-600);
+  }
+  .bg-transparent {
+    background-color: transparent;
   }
   .bg-white {
     background-color: var(--color-white);

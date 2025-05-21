@@ -1,13 +1,13 @@
 from django import template
-from store.models import Product
+from productos.models import Producto  # ✅ Corrección aquí
 
 register = template.Library()
 
 @register.filter
 def get_product(product_id):
     try:
-        return Product.objects.get(id=product_id)
-    except Product.DoesNotExist:
+        return Producto.objects.get(id=int(product_id))  # Asegura que sea int
+    except (Producto.DoesNotExist, ValueError, TypeError):
         return None
 
 @register.filter
@@ -16,8 +16,6 @@ def to_int(value):
         return int(value)
     except (ValueError, TypeError):
         return 0
-    
-
 
 @register.simple_tag(takes_context=True)
 def cart_count(context):

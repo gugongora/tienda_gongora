@@ -1,27 +1,12 @@
 {% extends 'base.html' %}
-{# Extiende la plantilla base llamada 'base.html' para mantener el diseño general del sitio #}
 
 {% block content %}
-{# Bloque de contenido principal que será insertado en la plantilla base #}
-
 <h2>Iniciar sesión</h2>
-{# Título de la página #}
-
 <form method="post">
-  {# Formulario que envía los datos usando el método POST #}
-  
   {% csrf_token %}
-  {# Token de seguridad para prevenir ataques CSRF (Cross-Site Request Forgery) #}
-  
   {{ form.as_p }}
-  {# Renderiza el formulario Django (un objeto 'form' pasado desde la vista) con cada campo dentro de un párrafo <p> #}
-  
   <button type="submit">Entrar</button>
-  {# Botón para enviar el formulario #}
 </form>
 
 <p>¿No tienes una cuenta? <a href="{% url 'users:register' %}">Regístrate aquí</a></p>
-{# Enlace a la página de registro de usuarios, usando el nombre de URL 'users:register' definido en urls.py #}
-
 {% endblock %}
-{# Fin del bloque de contenido #}
