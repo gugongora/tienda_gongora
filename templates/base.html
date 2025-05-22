@@ -1,4 +1,5 @@
 {% load static %}
+{% load user_groups %}
 {% load cart_extras %}
 {% load tailwind_tags %}
 
@@ -27,20 +28,20 @@
 <!-- Elementos a la derecha -->
 <div class="flex items-center gap-4">
 
-  <!-- Buscador -->
-  <form method="get" action="{% url 'store:search' %}" class="hidden md:flex">
-    <div class="relative">
-      <input type="search" name="q" placeholder="Buscar..."
-             class="border border-gray-300 rounded pl-3 pr-9 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300">
-      <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-black hover:text-gray-700">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M21 21l-4.35-4.35M17.25 10.5a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
-        </svg>
-      </button>
-    </div>
-  </form>
+<!-- Buscador (funciona con la API externa) -->
+<form id="buscador-api" class="hidden md:flex" onsubmit="buscarProductos(event)">
+  <div class="relative">
+    <input type="search" id="query" placeholder="Buscar..."
+           class="border border-gray-300 rounded pl-3 pr-9 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300">
+    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-black hover:text-gray-700">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+           viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21 21l-4.35-4.35M17.25 10.5a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
+      </svg>
+    </button>
+  </div>
+</form>
 
   <!-- Barra vertical separadora -->
   <div class="h-6 w-px bg-gray-400"></div>
@@ -89,12 +90,18 @@
     </div>
   </nav>
 
-  <!-- Menú secundario -->
-  <div class="bg-[#4B302D] text-white text-sm py-2 text-center space-x-6">
-    <a href="{% url 'store:product_list' %}" class="hover:underline">Home</a>
-    <a href="{% url 'store:product_list' %}?category=herramienta" class="hover:underline">Herramientas</a>
-    <button class="hover:underline" data-modal-target="dollarModal">Conversor USD → CLP</button>
-  </div>
+  <!-- Menú secundario con categorías desde API -->
+<div class="bg-[#4B302D] text-white text-sm py-2 text-center space-x-6">
+  <a href="{% url 'store:product_list' %}" class="hover:underline">Home</a>
+
+  {% for categoria in categorias_api %}
+    <a href="{% url 'store:product_list' %}?categoria={{ categoria.id }}" class="hover:underline">
+      {{ categoria.nombre }}
+    </a>
+  {% endfor %}
+
+  <button class="hover:underline" data-modal-target="dollarModal">Conversor USD → CLP</button>
+</div>
 </header>
 
   <main class="max-w-7xl mx-auto px-4 py-8">
@@ -186,7 +193,15 @@
       <h2 class="text-lg font-semibold">Mi cuenta</h2>
       <button onclick="closeUser()" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
     </div>
-    <div class="p-4 text-sm text-gray-700">
+
+    <div class="p-4 text-sm text-gray-700 space-y-3">
+{% if user.is_authenticated and user|has_group:"personal_interno" %}
+  <a href="{% url 'store:dashboard_interno' %}"
+     class="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded transition">
+    🛠 Dashboard Interno
+  </a>
+{% endif %}
+
       <form method="post" action="{% url 'users:logout' %}">
         {% csrf_token %}
         <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
@@ -248,5 +263,64 @@
   </script>
 
   <script src="{% static 'js/conversor.js' %}"></script>
+
+  <script>
+  function buscarProductos(event) {
+    event.preventDefault();  // Evita el envío tradicional del formulario
+
+    const query = document.getElementById("query").value.trim();
+    if (!query) return;
+
+    const apiURL = `http://127.0.0.1:8000/api/productos/?search=${encodeURIComponent(query)}`;
+    const productGrid = document.getElementById("product-grid");
+    productGrid.innerHTML = '<p class="col-span-3 text-center text-gray-500">Buscando...</p>';
+
+    fetch(apiURL)
+      .then(res => res.json())
+      .then(data => {
+        productGrid.innerHTML = '';
+
+        if (!data.results || data.results.length === 0) {
+          productGrid.innerHTML = '<p class="col-span-3 text-center text-red-600">No se encontraron resultados.</p>';
+          return;
+        }
+
+        data.results.forEach(producto => {
+          const card = document.createElement('div');
+          card.className = 'bg-[#F5E6CA] shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300';
+
+          const imageSrc = producto.imagen_url || '{% static "images/no-image.jpg" %}';
+          const precio = producto.precio_actual ?? 0;
+
+          card.innerHTML = `
+            <img src="${imageSrc}" alt="${producto.nombre}" class="w-full h-64 object-cover">
+            <div class="p-5">
+              <h3 class="text-lg font-semibold text-gray-900 mb-1">${producto.nombre}</h3>
+              <p class="text-sm text-gray-600 mb-2">${producto.descripcion?.slice(0, 100) || ''}</p>
+              <p class="text-xl font-bold text-[#BD6A5C] mb-4">$${precio}</p>
+              <div class="flex flex-col gap-2">
+                <a href="/store/producto/${producto.id}/" class="text-center bg-[#F5E6CA] border border-gray-800 text-gray-800 hover:bg-[#4B302D] hover:text-white font-medium py-2 px-4 rounded transition-colors">
+                  Ver detalles
+                </a>
+                <form action="/cart/add/${producto.id}/" method="post">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                  <button type="submit" class="w-full bg-[#BD6A5C] hover:bg-[#D6B79E] text-white font-medium py-2 px-4 rounded transition-colors">
+                    Agregar al carrito
+                  </button>
+                </form>
+              </div>
+            </div>
+          `;
+
+          productGrid.appendChild(card);
+        });
+      })
+      .catch(error => {
+        productGrid.innerHTML = `<p class="col-span-3 text-center text-red-600">Error: ${error.message}</p>`;
+      });
+  }
+</script>
+
+  
 </body>
 </html>

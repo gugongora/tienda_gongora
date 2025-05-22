@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% get_static_prefix as STATIC %}
+{% load user_groups %}
 
 {% block content %}
 
@@ -55,13 +56,20 @@
     index = (index + 1) % slides.length;
   }, 5000); // cambia cada 5 segundos
 </script>
-
-<!-- Cargar productos desde la API -->
+<!--Carga de productos de la API-->
 <script>
   const productGrid = document.getElementById('product-grid');
 
   function cargarProductosDesdeAPI() {
-    fetch('http://127.0.0.1:8000/api/productos/')
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoria = urlParams.get('categoria');
+    let apiURL = 'http://127.0.0.1:8000/api/productos/';
+
+    if (categoria) {
+      apiURL += `?categoria=${categoria}`;
+    }
+
+    fetch(apiURL)
       .then(response => {
         if (!response.ok) {
           throw new Error(`Error al obtener productos: ${response.status}`);
@@ -69,7 +77,7 @@
         return response.json();
       })
       .then(data => {
-        productGrid.innerHTML = ''; // Limpiar contenido inicial
+        productGrid.innerHTML = '';
 
         if (!data.results || data.results.length === 0) {
           productGrid.innerHTML = '<p class="col-span-3 text-center text-red-600">No hay productos disponibles.</p>';
@@ -111,7 +119,6 @@
       });
   }
 
-  // Cargar productos al cargar la página
   document.addEventListener('DOMContentLoaded', cargarProductosDesdeAPI);
 </script>
 

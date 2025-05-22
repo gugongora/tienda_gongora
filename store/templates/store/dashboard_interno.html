@@ -1,71 +1,122 @@
-<!-- Sección para consultar el stock de una sucursal -->
-<h2>Consultar stock de una sucursal</h2>
-<form method="post">
-  {% csrf_token %}
-  <!-- Este campo oculto sirve para identificar en la vista que se desea hacer una consulta de stock -->
-  <input type="hidden" name="consultar_stock" value="1">
+<!-- DEBUG: dashboard_interno.html -->
+{% extends 'base.html' %}
+{% load static %}
 
-  <!-- Campo para ingresar el ID de la sucursal -->
-  <label for="sucursal_id">ID de Sucursal:</label>
-  <input type="number" name="sucursal_id" id="sucursal_id" required>
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-10 px-4 py-8">
 
-  <!-- Botón para enviar el formulario -->
-  <button type="submit">Consultar Stock</button>
-</form>
 
-<!-- Si existen datos de stock disponibles, se muestran como JSON (formateados con <pre>) -->
-{% if stock_data %}
-  <pre>{{ stock_data|safe }}</pre>
+  <!-- Consultar stock de una sucursal -->
+  <section class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">📦 Consultar stock de una sucursal</h2>
+
+    {% if sucursales|length > 0 %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="consultar_stock" value="1">
+        <input type="hidden" id="sucursal_id" name="sucursal_id">
+
+        <div class="flex flex-wrap gap-3 mb-4">
+          {% for sucursal in sucursales %}
+            <button
+              type="submit"
+              onclick="document.getElementById('sucursal_id').value='{{ sucursal.id }}';"
+              class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded shadow text-sm"
+            >
+              {{ sucursal.nombre }} (ID: {{ sucursal.id }})
+            </button>
+          {% endfor %}
+        </div>
+      </form>
+    {% else %}
+      <p class="text-red-600 font-semibold">⚠️ No se encontraron sucursales disponibles.</p>
+    {% endif %}
+
+    {% if stock_data %}
+  {% if stock_data.error %}
+    <div class="text-red-600 bg-red-100 border border-red-300 rounded p-3">
+      ⚠️ Error: {{ stock_data.error }}<br>
+      {{ stock_data.detalle }}
+    </div>
+  {% elif stock_data.mensaje %}
+    <div class="text-gray-600 italic">{{ stock_data.mensaje }}</div>
+  {% else %}
+    <div class="mt-4">
+      <h3 class="font-semibold text-gray-700 mb-2">📋 Productos en stock:</h3>
+      <ul class="space-y-1 text-sm text-gray-800 list-disc list-inside">
+        {% for item in stock_data %}
+          <li><strong>{{ item.producto_nombre }}</strong>: {{ item.cantidad }} unidades</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
 {% endif %}
+  </section>
 
-<hr> <!-- Separador visual -->
+  <!-- Consultar detalle de un pedido -->
+  <section class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">📄 Consultar detalle de un pedido</h2>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="consultar_pedido" value="1">
 
-<!-- Sección para consultar el detalle de un pedido -->
-<h2>Consultar detalle de un pedido</h2>
-<form method="post">
-  {% csrf_token %}
-  <!-- Campo oculto para indicar que se quiere consultar un pedido -->
-  <input type="hidden" name="consultar_pedido" value="1">
+      <div>
+        <label for="pedido_id" class="block font-medium text-sm text-gray-700">ID del Pedido</label>
+        <input type="number" name="pedido_id" id="pedido_id" required
+               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500">
+      </div>
 
-  <!-- Campo para ingresar el ID del pedido -->
-  <label for="pedido_id">ID de Pedido:</label>
-  <input type="number" name="pedido_id" id="pedido_id" required>
+      <button type="submit"
+              class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded shadow">
+        Consultar Pedido
+      </button>
+    </form>
 
-  <!-- Botón para enviar el formulario -->
-  <button type="submit">Consultar Pedido</button>
-</form>
+    {% if pedido_detalle %}
+      <div class="mt-6 bg-gray-100 p-4 rounded text-sm text-gray-700 overflow-auto max-h-96">
+        <pre>{{ pedido_detalle|safe }}</pre>
+      </div>
+    {% endif %}
+  </section>
 
-<!-- Si hay datos del pedido, se muestran como JSON -->
-{% if pedido_detalle %}
-  <pre>{{ pedido_detalle|safe }}</pre>
-{% endif %}
+  <!-- Realizar nuevo pedido -->
+  <section class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">📝 Realizar un nuevo pedido</h2>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="realizar_pedido" value="1">
 
-<hr> <!-- Separador visual -->
+      <div>
+        <label for="sucursal_origen" class="block font-medium text-sm text-gray-700">Sucursal Origen (ID)</label>
+        <input type="number" name="sucursal_origen" id="sucursal_origen" required
+               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500">
+      </div>
 
-<!-- Sección para crear un nuevo pedido -->
-<h2>Realizar un nuevo pedido</h2>
-<form method="post">
-  {% csrf_token %}
-  <!-- Campo oculto para identificar que se desea realizar un pedido -->
-  <input type="hidden" name="realizar_pedido" value="1">
+      <div>
+        <label for="productos" class="block font-medium text-sm text-gray-700">Productos (código:cantidad)</label>
+        <input type="text" name="productos" id="productos"
+               placeholder="ej: PROD-011:4, PROD-008:10" required
+               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500">
+      </div>
 
-  <!-- Campo para ingresar el ID de la sucursal origen -->
-  <label for="sucursal_origen">Sucursal Origen (ID):</label>
-  <input type="number" name="sucursal_origen" id="sucursal_origen" required>
+      <div>
+        <label for="observaciones" class="block font-medium text-sm text-gray-700">Observaciones</label>
+        <textarea name="observaciones" id="observaciones" rows="3"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"></textarea>
+      </div>
 
-  <!-- Campo para ingresar los productos con su cantidad en formato "codigo:cantidad" -->
-  <label for="productos">Productos (formato: código:cantidad, código2:cantidad2):</label>
-  <input type="text" name="productos" id="productos" placeholder="ej: PROD-011:4, PROD-008:10" required>
+      <button type="submit"
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow">
+        Enviar Pedido
+      </button>
+    </form>
 
-  <!-- Campo de texto para observaciones adicionales del pedido -->
-  <label for="observaciones">Observaciones:</label>
-  <textarea name="observaciones" id="observaciones"></textarea>
+    {% if pedido_resultado %}
+      <div class="mt-6 bg-gray-100 p-4 rounded text-sm text-gray-700 overflow-auto max-h-96">
+        <pre>{{ pedido_resultado|safe }}</pre>
+      </div>
+    {% endif %}
+  </section>
 
-  <!-- Botón para enviar el formulario de nuevo pedido -->
-  <button type="submit">Enviar Pedido</button>
-</form>
-
-<!-- Si hay resultado del pedido (éxito o error), se muestra en pantalla -->
-{% if pedido_resultado %}
-  <pre>{{ pedido_resultado|safe }}</pre>
-{% endif %}
+</div>
+{% endblock %}

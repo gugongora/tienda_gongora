@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from .models import Producto, Categoria, Marca
+from rest_framework import filters
 from .serializers import (
     ProductoListSerializer,
     ProductoDetailSerializer,
@@ -8,12 +9,13 @@ from .serializers import (
     MarcaSerializer
 )
 
+
 class ProductoViewSet(viewsets.ReadOnlyModelViewSet):
-    # Por defecto (en caso de no usarse get_queryset), usa este queryset ordenado
     queryset = Producto.objects.all().order_by('id')
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nombre', 'descripcion', 'codigo']
 
     def get_serializer_class(self):
-        # Si es detalle, usa el serializador detallado
         if self.action == 'retrieve':
             return ProductoDetailSerializer
         return ProductoListSerializer
@@ -22,8 +24,7 @@ class ProductoViewSet(viewsets.ReadOnlyModelViewSet):
         return [permissions.AllowAny()]
 
     def get_queryset(self):
-        # Aplica orden explícito y luego filtra si corresponde
-        queryset = Producto.objects.all().order_by('id')
+        queryset = super().get_queryset()
         categoria_id = self.request.query_params.get('categoria')
         marca_id = self.request.query_params.get('marca')
 
