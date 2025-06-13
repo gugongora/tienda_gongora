@@ -2,3 +2,12 @@ asgiref==3.8.1
 Django==5.2.1
 sqlparse==0.5.3
 tzdata==2025.2
+pymysql
+django-tailwind
+djangorestframework
+django-cors-headers
+drf-yasg
+djangorestframework-simplejwt
+requests
+Pillow
+cryptography
