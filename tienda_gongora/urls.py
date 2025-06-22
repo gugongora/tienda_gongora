@@ -80,7 +80,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),      # Refrescar token JWT
 
     # Rutas para la documentación de la API generada automáticamente con Swagger y Redoc
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),  # JSON/YAML de la documentación
+    re_path(r'^swagger(?P<format>json|yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),  # JSON/YAML de la documentación
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  # Interfaz Swagger UI (interactiva)
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),            # Interfaz Redoc para documentación más simple
 ]

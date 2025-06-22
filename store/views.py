@@ -5,6 +5,7 @@ from django.urls import reverse
 import requests
 import json
 from django.http import Http404
+from django.conf import settings
 
 # Función para verificar si el usuario pertenece al grupo 'personal_interno'
 def is_internal_person(user):
@@ -43,7 +44,7 @@ def search(request):
 
 # Dashboard protegido para grupo 'personal_interno'
 @login_required
-@user_passes_test(is_internal_person)
+@user_passes_test(is_internal_person, login_url=settings.LOGIN_URL)
 def dashboard_interno(request):
     stock_data = None
     pedido_detalle = None
