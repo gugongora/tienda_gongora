@@ -27,7 +27,7 @@ def product_list(request):
 
 # Vista para detalle de producto desde API externa
 def product_detail(request, product_id):
-    response = requests.get(f'http://54.208.45.218/api/productos/{product_id}')
+    response = requests.get(f'http://127.0.0.1:8000/api/productos/{product_id}')
     if response.status_code == 200:
         product_data = response.json()
         product_data['id'] = product_id
@@ -60,7 +60,7 @@ def dashboard_interno(request):
 
     # Obtener sucursales desde API autenticada
     try:
-        suc_response = session.get("http://54.208.45.218/api/sucursales/", headers=headers)
+        suc_response = session.get("http://127.0.0.1:8000/api/sucursales/", headers=headers)
         if suc_response.status_code == 200:
             data = suc_response.json()
             sucursales = data.get("results", [])
@@ -75,7 +75,7 @@ def dashboard_interno(request):
         if 'consultar_stock' in request.POST:
             sucursal_id = request.POST.get('sucursal_id')
             if sucursal_id:
-                url = f'http://54.208.45.218/api/sucursales/{sucursal_id}/stock/'
+                url = f'hhttp://127.0.0.1:8000/api/sucursales/{sucursal_id}/stock/'
                 try:
                     response = session.get(url, headers=headers)
                     if response.status_code == 200:
@@ -88,7 +88,7 @@ def dashboard_interno(request):
         elif 'consultar_pedido' in request.POST:
             pedido_id = request.POST.get('pedido_id')
             if pedido_id:
-                url = f'http://54.208.45.218/api/pedidos/{pedido_id}/'
+                url = f'http://127.0.0.1:8000/api/pedidos/{pedido_id}/'
                 try:
                     response = session.get(url, headers=headers)
                     if response.status_code == 200:
@@ -133,7 +133,7 @@ def dashboard_interno(request):
                     }
                     try:
                         response = session.post(
-                            'http://54.208.45.218/api/pedidos/',
+                            'http://127.0.0.1:8000/api/pedidos/',
                             data=json.dumps(pedido_data),
                             headers=headers
                         )

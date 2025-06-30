@@ -55,6 +55,7 @@ INSTALLED_APPS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
+    "http://127.0.0.1:8000/",
     # Añadir los dominios de tus sucursales y clientes externos
 ]
 
@@ -225,7 +226,7 @@ LOGOUT_REDIRECT_URL = 'store:product_list'
 
 LOGIN_URL = 'users:login'
 
-BASE_URL = "http://54.208.45.218"
+BASE_URL = "http://127.0.0.1:8000/"
 
 
 TAILWIND_APP_NAME = 'theme'

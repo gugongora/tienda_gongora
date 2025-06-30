@@ -280,7 +280,7 @@
     const query = document.getElementById("query").value.trim();
     if (!query) return;
 
-    const apiURL = `http://52.55.129.100/api/productos/?search=${encodeURIComponent(query)}`;
+    const apiURL = `http://127.0.0.1:8000/api/productos/?search=${encodeURIComponent(query)}`;
     const productGrid = document.getElementById("product-grid");
     productGrid.innerHTML = '<p class="col-span-3 text-center text-gray-500">Buscando...</p>';
 
