@@ -63,7 +63,7 @@
   function cargarProductosDesdeAPI() {
     const urlParams = new URLSearchParams(window.location.search);
     const categoria = urlParams.get('categoria');
-    let apiURL = ':54.208.45.218/api/productos/';
+    let apiURL = ':http://54.208.45.218/api/productos/';
 
     if (categoria) {
       apiURL += `?categoria=${categoria}`;

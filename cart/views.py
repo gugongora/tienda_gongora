@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import Http404
 from types import SimpleNamespace
 
-API_BASE_URL = "http://127.0.0.1:8000/api/productos/"
+API_BASE_URL = "http://54.208.45.218/api/productos/"
 
 def fetch_product_from_api(product_id):
     response = requests.get(f"{API_BASE_URL}{product_id}/")

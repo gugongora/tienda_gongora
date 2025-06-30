@@ -225,7 +225,7 @@ LOGOUT_REDIRECT_URL = 'store:product_list'
 
 LOGIN_URL = 'users:login'
 
-BASE_URL = "54.208.45.218"
+BASE_URL = "http://54.208.45.218"
 
 
 TAILWIND_APP_NAME = 'theme'
