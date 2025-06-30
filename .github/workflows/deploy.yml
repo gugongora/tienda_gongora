@@ -36,14 +36,15 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          script: |
-            set -e
-            cd /home/ubuntu/tienda_gongora
-            git pull origin main
-            source venv/bin/activate
-            pip install -r requirements.txt
-            python manage.py migrate
-            python manage.py collectstatic --noinput
-            sudo systemctl restart gunicorn
-            sudo systemctl restart nginx
+script: |
+  set -e
+  cd /home/ubuntu/tienda_gongora
+  git fetch origin main
+  git reset --hard origin/main
+  /home/ubuntu/tienda_gongora/venv/bin/pip install -r requirements.txt
+  /home/ubuntu/tienda_gongora/venv/bin/python manage.py migrate
+  /home/ubuntu/tienda_gongora/venv/bin/python manage.py collectstatic --noinput
+  sudo systemctl restart gunicorn
+  sudo systemctl restart nginx
+
 
