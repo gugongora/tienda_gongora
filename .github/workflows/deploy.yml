@@ -37,6 +37,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
+            set -e
             cd /home/ubuntu/tienda_gongora
             git pull origin main
             source venv/bin/activate
@@ -45,3 +46,4 @@ jobs:
             python manage.py collectstatic --noinput
             sudo systemctl restart gunicorn
             sudo systemctl restart nginx
+
