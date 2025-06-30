@@ -207,6 +207,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Para almacenar sesiones en la base de datos.
 
 
