@@ -70,7 +70,7 @@ def get_cart_items_from_api(request):
 
     for product_id_str, quantity in cart.items():
         try:
-            response = requests.get(f"54.208.45.218/api/productos/{product_id_str}/")
+            response = requests.get(f"http://52.55.129.100/api/productos/{product_id_str}/")
             if response.status_code != 200:
                 continue
             data = response.json()
