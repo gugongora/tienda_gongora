@@ -53,9 +53,11 @@ def convertir_monto(monto, moneda_origen, moneda_destino):
     if moneda_origen == 'CLP' and moneda_destino == 'USD':
         # Valor aproximado del dólar para pruebas
         valor_dolar = obtener_valor_dolar() or Decimal('950.0')
+        valor_dolar = Decimal(str(valor_dolar))
         return monto / valor_dolar
     elif moneda_origen == 'USD' and moneda_destino == 'CLP':
         valor_dolar = obtener_valor_dolar() or Decimal('950.0')
+        valor_dolar = Decimal(str(valor_dolar))
         return monto * valor_dolar
     else:
         # Para otras conversiones, retornamos el mismo valor

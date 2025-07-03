@@ -23,7 +23,7 @@ from orders.models import Order, OrderItem
 
 class TestComponentesClave(TestCase):
     """6 Pruebas unitarias para los componentes clave del sistema"""
-    
+    #•	Aquí se crean todos los datos necesarios para las pruebas
     def setUp(self):
         """Configuración inicial para todas las pruebas"""
         self.client = Client()

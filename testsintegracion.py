@@ -23,7 +23,7 @@ import requests
 class TestFlujosIntegracion:
     def setup_method(self):
         self.client = Client()
-        # Datos base para los flujos
+        # Datos base para los flujos crea 
         self.categoria = Categoria.objects.create(nombre='Herramientas', descripcion='Herramientas de construcción')
         self.marca = Marca.objects.create(nombre='Stanley')
         self.producto = Producto.objects.create(
@@ -34,9 +34,11 @@ class TestFlujosIntegracion:
             marca=self.marca,
             categoria=self.categoria
         )
+        #crea un precio, sucursal,stock
         self.precio = Precio.objects.create(producto=self.producto, valor=Decimal('150.00'))
         self.sucursal = Sucursal.objects.create(nombre='Sucursal Centro', direccion='Av. Principal 123', telefono='555-0123')
         self.stock = Stock.objects.create(sucursal=self.sucursal, producto=self.producto, cantidad=50)
+        #crea un usuario de prueba
         self.user = User.objects.create_user(username='testuser', password='testpass123')
 
     def test_flujo_compra_completo(self):
@@ -110,18 +112,22 @@ class TestFlujosIntegracion:
             assert response.status_code == 200, "La API debe estar funcionando"
         except requests.exceptions.RequestException as e:
             pytest.fail(f"La API no está funcionando: {e}")
-        
+        #Crea un producto
         producto = Producto.objects.create(
             codigo='PROD-002',
             codigo_fabricante='FAB-STA-002',
             nombre='Destornillador',
             descripcion='Destornillador de precisión',
+            #Usa los datos de la marca y categoria del setup_method
             marca=self.marca,
             categoria=self.categoria
         )
+        #Crea un stock
         stock = Stock.objects.create(sucursal=self.sucursal, producto=producto, cantidad=30)
+        #que se asocia el producto y la sucursal
         assert stock.producto == producto
         assert stock.sucursal == self.sucursal
+        #hay 30 unidades disponibles en la sucursal
         assert stock.cantidad == 30
 
     def test_pedido_y_actualizacion_stock(self):
