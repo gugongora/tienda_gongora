@@ -29,6 +29,12 @@ DEBUG = True
 ALLOWED_HOSTS = ['*'] 
 
 
+# API base URL (ajústalo según el entorno)
+API_BASE_URL = "http://127.0.0.1:8000/api/"  # API EN LOCAL
+# API_BASE_URL = "http://52.55.129.100/api/" # API AWS
+
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,6 +57,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'productos',
     'operaciones',
+    'widget_tweaks',
+    'django.contrib.humanize',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -123,6 +131,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'store.context_processors.categorias_api',
+                'utils.context_processors.api_base_url',
             ],
         },
     },
@@ -134,17 +143,19 @@ WSGI_APPLICATION = 'tienda_gongora.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#       'ENGINE': 'django.db.backends.mysql',
-#        'NAME': 'tiendagongora',
-#        'USER': 'root',
-#        'PASSWORD': 'eldiablo1',  # pon tu contraseña si es que tienes
-#        'HOST': '127.0.0.1',
-#       'PORT': '3306',
-#   }
-#}
+DATABASES = {
+    'default': {
+       'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tiendagongora',
+        'USER': 'root',
+        'PASSWORD': 'eldiablo1',  # pon tu contraseña si es que tienes
+        'HOST': '127.0.0.1',
+       'PORT': '3306',
+   }
+}
 
+
+#Base de datos en AWS
 #DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.mysql',
@@ -154,18 +165,7 @@ WSGI_APPLICATION = 'tienda_gongora.wsgi.application'
 #        'HOST': 'localhost',
 #        'PORT': '3306',
 #    }
-#}
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tienda_gongora',
-        'USER': 'django_user',
-        'PASSWORD': 'clave_segura_2025',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
-} 
+#} 
 
 
 # Password validation
@@ -224,7 +224,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL = 'store:product_list'  # o donde desees redirigir después del login
 LOGOUT_REDIRECT_URL = 'store:product_list'
 
-LOGIN_URL = 'users:login'
+LOGIN_URL = 'users:login_register'
 
 BASE_URL = "http://127.0.0.1:8000/"
 

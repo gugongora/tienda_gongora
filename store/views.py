@@ -5,6 +5,10 @@ from django.urls import reverse
 import requests
 import json
 from django.http import Http404
+from utils.api import build_api_url
+from django.conf import settings
+from django.shortcuts import render
+
 
 # Función para verificar si el usuario pertenece al grupo 'personal_interno'
 def is_internal_person(user):
@@ -23,11 +27,17 @@ def product_list(request):
         print("✅ Filtro aplicado: marca", marca_id)
         products = products.filter(brand_id=marca_id)
 
-    return render(request, 'store/product_list.html', {'products': products})
+    context = {
+        'products': products,
+        'API_BASE_URL': settings.API_BASE_URL,  # <- variable para el JS
+    }
+
+    return render(request, 'store/product_list.html', context)
 
 # Vista para detalle de producto desde API externa
 def product_detail(request, product_id):
-    response = requests.get(f'http://52.55.129.100/api/productos/{product_id}')
+    url = build_api_url(f'productos/{product_id}')
+    response = requests.get(url)
     if response.status_code == 200:
         product_data = response.json()
         product_data['id'] = product_id
@@ -60,7 +70,7 @@ def dashboard_interno(request):
 
     # Obtener sucursales desde API autenticada
     try:
-        suc_response = session.get("http://52.55.129.100/api/sucursales/", headers=headers)
+        suc_response = session.get(build_api_url("sucursales/"), headers=headers)
         if suc_response.status_code == 200:
             data = suc_response.json()
             sucursales = data.get("results", [])
@@ -75,7 +85,7 @@ def dashboard_interno(request):
         if 'consultar_stock' in request.POST:
             sucursal_id = request.POST.get('sucursal_id')
             if sucursal_id:
-                url = f'http://52.55.129.100/api/sucursales/{sucursal_id}/stock/'
+                url = build_api_url(f'sucursales/{sucursal_id}/stock/')
                 try:
                     response = session.get(url, headers=headers)
                     if response.status_code == 200:
@@ -88,7 +98,7 @@ def dashboard_interno(request):
         elif 'consultar_pedido' in request.POST:
             pedido_id = request.POST.get('pedido_id')
             if pedido_id:
-                url = f'http://52.55.129.100/api/pedidos/{pedido_id}/'
+                url = build_api_url(f'pedidos/{pedido_id}/')
                 try:
                     response = session.get(url, headers=headers)
                     if response.status_code == 200:
@@ -132,8 +142,9 @@ def dashboard_interno(request):
                         'detalles': productos_items
                     }
                     try:
+                        url = build_api_url('pedidos/')
                         response = session.post(
-                            'http://52.55.129.100/api/pedidos/',
+                            url,
                             data=json.dumps(pedido_data),
                             headers=headers
                         )
@@ -152,3 +163,8 @@ def dashboard_interno(request):
     }
 
     return render(request, 'store/dashboard_interno.html', context)
+
+
+
+def quienes_somos(request):
+    return render(request, 'store/quienes_somos.html')

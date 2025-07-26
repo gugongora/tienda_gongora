@@ -13,9 +13,9 @@ from django.contrib.auth.models import User, Group
 
 def create_categories():
     categories = [
-        {'nombre': 'Herramientas Manuales', 'descripcion': 'Incluye herramientas eléctricas y manuales'},
-        {'nombre': 'Materiales Básicos', 'descripcion': 'Materiales para construcción y acabados'},
-        {'nombre': 'Equipos de Seguridad', 'descripcion': 'Equipos de protección personal y accesorios'},
+        {'nombre': 'Anillos', 'descripcion': 'Anillos de compromiso, boda y moda'},
+        {'nombre': 'Collares', 'descripcion': 'Collares finos y colgantes elegantes'},
+        {'nombre': 'Aros', 'descripcion': 'Aros clásicos, modernos y de fantasía'},
     ]
     for category in categories:
         Categoria.objects.get_or_create(
@@ -27,8 +27,8 @@ def create_categories():
 
 def create_brands():
     brands = [
-        'DeWalt', 'Bosch', 'Makita', 'Stanley', 'Truper',
-        'Pretul', 'Rotoplas', 'Urrea', 'Steren', 'Comex'
+        'Góngora Joyería', 'Platería Mapuche', 'Brillos del Sur',
+        'Alhajas Reales', 'Joyas Licanray', 'Orfebrería Ñielol'
     ]
     for brand_name in brands:
         Marca.objects.get_or_create(nombre=brand_name)
@@ -37,24 +37,15 @@ def create_brands():
 
 def create_products(categories, brands):
     products = [
-        {'nombre': 'Martillo de Carpintero', 'categoria': 'Herramientas Manuales', 'marca': 'Truper', 'precio': '150.00'},
-        {'nombre': 'Juego de Destornilladores', 'categoria': 'Herramientas Manuales', 'marca': 'Stanley', 'precio': '300.00'},
-        {'nombre': 'Llave Ajustable 10"', 'categoria': 'Herramientas Manuales', 'marca': 'Urrea', 'precio': '220.00'},
-        {'nombre': 'Taladro Inalámbrico', 'categoria': 'Herramientas Manuales', 'marca': 'DeWalt', 'precio': '900.00'},
-        {'nombre': 'Sierra Circular', 'categoria': 'Herramientas Manuales', 'marca': 'Makita', 'precio': '1300.00'},
-        {'nombre': 'Lijadora Orbital', 'categoria': 'Herramientas Manuales', 'marca': 'Bosch', 'precio': '850.00'},
-        {'nombre': 'Bolsa de Cemento 50kg', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '250.00'},
-        {'nombre': 'Saco de Arena', 'categoria': 'Materiales Básicos', 'marca': 'Truper', 'precio': '70.00'},
-        {'nombre': 'Ladrillos Rústicos', 'categoria': 'Materiales Básicos', 'marca': 'Truper', 'precio': '3.00'},
-        {'nombre': 'Pintura Vinílica 4L', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '500.00'},
-        {'nombre': 'Barniz Protector', 'categoria': 'Materiales Básicos', 'marca': 'Comex', 'precio': '200.00'},
-        {'nombre': 'Cerámica para Piso', 'categoria': 'Materiales Básicos', 'marca': 'Truper', 'precio': '350.00'},
-        {'nombre': 'Casco de Seguridad', 'categoria': 'Equipos de Seguridad', 'marca': 'Pretul', 'precio': '120.00'},
-        {'nombre': 'Guantes Antideslizantes', 'categoria': 'Equipos de Seguridad', 'marca': 'Pretul', 'precio': '60.00'},
-        {'nombre': 'Lentes de Seguridad', 'categoria': 'Equipos de Seguridad', 'marca': 'Pretul', 'precio': '80.00'},
-        {'nombre': 'Juego de Tornillos y Anclajes', 'categoria': 'Equipos de Seguridad', 'marca': 'Stanley', 'precio': '90.00'},
-        {'nombre': 'Fijador Multiusos', 'categoria': 'Equipos de Seguridad', 'marca': 'Steren', 'precio': '75.00'},
-        {'nombre': 'Cinta Métrica 5m', 'categoria': 'Equipos de Seguridad', 'marca': 'Stanley', 'precio': '55.00'},
+        {'nombre': 'Anillo de Plata 950', 'categoria': 'Anillos', 'marca': 'Góngora Joyería', 'precio': '35000'},
+        {'nombre': 'Anillo con Piedra Lapislázuli', 'categoria': 'Anillos', 'marca': 'Platería Mapuche', 'precio': '42000'},
+        {'nombre': 'Collar de Cuarzo Rosa', 'categoria': 'Collares', 'marca': 'Brillos del Sur', 'precio': '28000'},
+        {'nombre': 'Collar de Plata con Dije de Sol', 'categoria': 'Collares', 'marca': 'Joyas Licanray', 'precio': '39000'},
+        {'nombre': 'Aros de Plata Filigrana', 'categoria': 'Aros', 'marca': 'Orfebrería Ñielol', 'precio': '33000'},
+        {'nombre': 'Aros Colgantes Piedra Volcánica', 'categoria': 'Aros', 'marca': 'Brillos del Sur', 'precio': '31000'},
+        {'nombre': 'Anillo de Oro Laminado', 'categoria': 'Anillos', 'marca': 'Alhajas Reales', 'precio': '45000'},
+        {'nombre': 'Collar Doble Cadena con Perlas', 'categoria': 'Collares', 'marca': 'Alhajas Reales', 'precio': '37000'},
+        {'nombre': 'Aros Argollas Grandes', 'categoria': 'Aros', 'marca': 'Joyas Licanray', 'precio': '25000'},
     ]
 
     for idx, product in enumerate(products):
@@ -69,7 +60,7 @@ def create_products(categories, brands):
             defaults={
                 'codigo_fabricante': codigo_fabricante,
                 'nombre': product['nombre'],
-                'descripcion': f"Descripción detallada para {product['nombre']}",
+                'descripcion': f"Joya artesanal: {product['nombre']}. Hecha a mano en Chile.",
                 'marca': marca,
                 'categoria': categoria,
             }

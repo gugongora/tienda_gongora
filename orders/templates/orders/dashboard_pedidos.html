@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Pedidos - Panel Interno{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold mb-4">📦 Pedidos Recibidos</h1>
+  <div class="overflow-x-auto bg-white shadow rounded-lg">
+    <table class="min-w-full table-auto text-sm text-left">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-2">ID</th>
+          <th class="px-4 py-2">Usuario</th>
+          <th class="px-4 py-2">Total</th>
+          <th class="px-4 py-2">Estado</th>
+          <th class="px-4 py-2">Fecha</th>
+          <th class="px-4 py-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr class="border-t hover:bg-gray-50 transition">
+          <td class="px-4 py-2">{{ order.id }}</td>
+          <td class="px-4 py-2">{{ order.user.username }}</td>
+          <td class="px-4 py-2">${{ order.total|floatformat:0 }}</td>
+          <td class="px-4 py-2 capitalize">{{ order.status }}</td>
+          <td class="px-4 py-2">{{ order.created_at|date:"d/m/Y H:i" }}</td>
+          <td class="px-4 py-2">
+            <a href="{% url 'orders:detalle_pedido' order.id %}"
+               class="text-indigo-600 hover:underline font-medium">
+              Ver detalles
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-4 py-2 text-center text-gray-500">
+            No hay pedidos aún.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

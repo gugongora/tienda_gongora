@@ -46,6 +46,10 @@ class Producto(models.Model):
     
     # Fecha de creación
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+     # NUEVO: campo de imagen
+    imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
+
     
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"

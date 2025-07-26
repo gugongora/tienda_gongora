@@ -1,4 +1,6 @@
 {% load static %}
+{% load cart_tags %}
+{% load humanize %}
 {% load user_groups %}
 {% load cart_extras %}
 {% load tailwind_tags %}
@@ -7,116 +9,127 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}Ferremas{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'images/logo-pestana.png' %}">
+  <title>{% block title %}Gongora Joyas{% endblock %}</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
   {% tailwind_css %}
 </head>
-<body class="bg-[#F5E6CA] text-gray-800 font-sans">
+<body class="bg-[#FFFFFF] text-gray-800 font-sans min-h-screen w-full flex flex-col">
+
 
 <!-- NAVBAR SUPERIOR -->
-<header>
-  <nav class="bg-[#F5E6CA] shadow">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-      
-      <!-- Logo y Nombre -->
-      <a href="{% url 'store:product_list' %}" class="flex items-center gap-3">
-        <div class="h-16 w-14 overflow-hidden flex items-center justify-center">
-          <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-auto w-auto max-h-full max-w-full scale-[2.0]">
+<header class="z-50">
+  <!-- Navbar fijo -->
+  <nav class="bg-[#5e0013] shadow fixed top-0 w-full z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex items-center justify-between">
+        <!-- IZQUIERDA: Logo -->
+        <a href="{% url 'store:product_list' %}" class="flex items-center justify-start h-full">
+          <img src="{% static 'images/logo.png' %}" alt="Logo"
+               class="h-12 w-auto object-contain max-w-[140px]">
+        </a>
+
+        <!-- DERECHA: Buscador + íconos -->
+        <div class="flex items-center justify-end gap-4 ml-auto">
+          <!-- Buscador -->
+          <form id="buscador-api" class="hidden md:flex" onsubmit="buscarProductos(event)">
+            <div class="relative">
+              <input type="search" id="query" placeholder="Buscar..."
+                     class="border border-gray-300 rounded pl-3 pr-9 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300
+                            text-white placeholder-white bg-transparent">
+              <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-4.35-4.35M17.25 10.5a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
+                </svg>
+              </button>
+            </div>
+          </form>
+
+          <!-- Carrito -->
+          <button onclick="openCart()" title="Carrito"
+                  class="w-10 h-10 flex items-center justify-center rounded-full bg-[#83041e] hover:bg-[#c7233c] transition relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            {% cart_count as total_cart %}
+            {% if total_cart > 0 %}
+              <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                {{ total_cart }}
+              </span>
+            {% endif %}
+          </button>
+
+          <!-- Usuario -->
+          {% if user.is_authenticated %}
+            <button onclick="openUser()" title="Cuenta"
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-[#83041e] hover:bg-[#c7233c] transition relative">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15.75 9a3.75 3.75 0 11-7.5 0M4.5 20.25a8.25 8.25 0 1115 0v.75H4.5v-.75z" />
+              </svg>
+            </button>
+          {% else %}
+            <a href="{% url 'users:login_register' %}"
+               class="w-10 h-10 flex items-center justify-center rounded-full bg-[#83041e] hover:bg-[#c7233c] text-white text-sm transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
+            </a>
+          {% endif %}
         </div>
-        <span class="text-2xl font-bold tracking-wide">Ferremas</span>
-      </a>
-
-<!-- Elementos a la derecha -->
-<div class="flex items-center gap-4">
-
-<!-- Buscador (funciona con la API externa) -->
-<form id="buscador-api" class="hidden md:flex" onsubmit="buscarProductos(event)">
-  <div class="relative">
-    <input type="search" id="query" placeholder="Buscar..."
-           class="border border-gray-300 rounded pl-3 pr-9 py-1 text-sm focus:outline-none focus:ring focus:border-blue-300">
-    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-black hover:text-gray-700">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-           viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M21 21l-4.35-4.35M17.25 10.5a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
-      </svg>
-    </button>
-  </div>
-</form>
-
-  <!-- Barra vertical separadora -->
-  <div class="h-6 w-px bg-gray-400"></div>
-
-  <!-- Botón Carrito -->
-  <button onclick="openCart()" title="Carrito"
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-[#BD6A5C] hover:bg-[#a45449] transition relative">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none"
-         viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round"
-            d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0" />
-    </svg>
-    {% cart_count as total_cart %}
-    {% if total_cart > 0 %}
-      <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">
-        {{ total_cart }}
-      </span>
-    {% endif %}
-  </button>
-
-  <!-- Botón Usuario -->
-  {% if user.is_authenticated %}
-    <button onclick="openUser()" title="Cuenta"
-            class="w-10 h-10 flex items-center justify-center rounded-full bg-[#BD6A5C] hover:bg-[#a45449] transition">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none"
-           viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 1115 0v.75H4.5v-.75z" />
-      </svg>
-    </button>
-  {% else %}
-    <a href="{% url 'users:login' %}"
-       class="w-10 h-10 flex items-center justify-center rounded-full bg-[#BD6A5C] hover:bg-[#a45449] text-white text-sm transition">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-           viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 1115 0v.75H4.5v-.75z" />
-      </svg>
-    </a>
-  {% endif %}
-</div>
-
       </div>
     </div>
   </nav>
 
-  <!-- Menú secundario con categorías desde API -->
-<div class="bg-[#4B302D] text-white text-sm py-2 text-center space-x-6">
-  <a href="{% url 'store:product_list' %}" class="hover:underline">Home</a>
+<!-- Menú secundario fijo debajo del navbar -->
+<div class="bg-[#83041e] text-white text-sm py-2 text-center space-x-7 fixed top-[64px] w-full z-50 shadow">
+  <!-- Home -->
+  <a href="{% url 'store:product_list' %}"
+     class="pb-2 border-b-2 transition-all duration-300 {% if not request.GET.categoria %}border-white{% else %}border-transparent hover:border-white{% endif %}">
+    Home
+  </a>
 
+  <!-- Categorías -->
   {% for categoria in categorias_api %}
-    <a href="{% url 'store:product_list' %}?categoria={{ categoria.id }}" class="hover:underline">
+    <a href="{% url 'store:product_list' %}?categoria={{ categoria.id }}"
+       class="pb-2 border-b-2 transition-all duration-300 {% if request.GET.categoria == categoria.id|stringformat:'s' %}border-white{% else %}border-transparent hover:border-white{% endif %}">
       {{ categoria.nombre }}
     </a>
   {% endfor %}
 
-  <button class="hover:underline" data-modal-target="dollarModal">Conversor USD → CLP</button>
+  <!-- Botón Conversor -->
+  <button class="pb-2 border-b-2 border-transparent hover:border-white transition-all duration-300"
+          data-modal-target="dollarModal">
+    Conversor USD → CLP
+  </button>
 </div>
+
 </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-8">
-    {% if messages %}
-      <div id="flash-messages" class="fixed top-4 inset-x-0 flex justify-center z-50 pointer-events-none">
-        {% for message in messages %}
-          <div class="relative bg-emerald-100 border border-emerald-400 text-emerald-700 px-6 py-3 rounded shadow-lg animate-fade-in-out max-w-md w-full pointer-events-auto">
-            <button onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-emerald-700 hover:text-red-600 text-lg font-bold">&times;</button>
-            {{ message }}
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-    {% block content %}{% endblock %}
-  </main>
+
+{% block hero %}{% endblock %}
+
+<main class="{% block main_classes %}pt-[128px] flex-grow max-w-7xl mx-auto px-4 py-8{% endblock %}">
+  {% if messages %}
+    <div id="flash-messages" class="fixed top-4 inset-x-0 flex justify-center z-50 pointer-events-none">
+      {% for message in messages %}
+        <div class="relative bg-emerald-100 border border-emerald-400 text-emerald-700 px-6 py-3 rounded shadow-lg animate-fade-in-out max-w-md w-full pointer-events-auto">
+          <button onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-emerald-700 hover:text-red-600 text-lg font-bold">&times;</button>
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
 
 <!-- Conversor USD Modal -->
 <div id="dollarModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
@@ -146,61 +159,90 @@
 <!-- Cart Sidebar -->
 <div id="cartOverlay" class="fixed inset-0 z-50 hidden" onclick="handleCartOverlayClick(event)">
   <div class="absolute inset-0" style="background-color: rgba(0, 0, 0, 0.3);"></div>
-  <div id="cartSidebar" class="absolute top-0 right-0 h-full w-80 bg-[#F5E6CA] shadow-lg transform translate-x-full transition-transform duration-300 overflow-y-auto">
+
+  <div id="cartSidebar" class="absolute top-0 right-0 w-80 h-screen bg-white shadow-lg transform translate-x-full transition-transform duration-300 flex flex-col">
+    
+    <!-- Encabezado -->
     <div class="flex justify-between items-center p-4 border-b">
-      <h2 class="text-lg font-semibold">Tu carrito</h2>
+      <h2 class="text-lg font-semibold text-[#5e0013]">Tu Carrito</h2>
       <button onclick="closeCart()" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
     </div>
-    <div class="p-4 text-sm text-gray-700">
+    
+    <!-- Contenido con scroll -->
+    <div class="flex-1 overflow-y-auto p-4 text-sm text-gray-700">
       {% with cart=request.session.cart %}
         {% if cart %}
           <ul class="divide-y divide-gray-200 mb-4">
             {% for product_id, quantity in cart.items %}
               {% with product=product_id|to_int|get_product %}
                 {% if product %}
-                  <li class="py-2 flex items-center justify-between gap-2">
-                    <div class="flex flex-col text-sm">
-                      <span class="font-medium">{{ product.nombre }}</span>
-                      <span class="text-gray-500">x{{ quantity }}</span>
+                  <li class="py-3 flex justify-between items-center">
+                    <div class="flex items-start gap-3">
+                      {% if product.imagen %}
+  <img src="{{ product.imagen }}" alt="{{ product.nombre }}" class="w-12 h-12 object-cover rounded shadow">
+{% else %}
+  <img src="{% static 'images/no-image.jpg' %}" alt="{{ product.nombre }}" class="w-12 h-12 object-cover rounded shadow">
+{% endif %}
+                      <div>
+                        <p class="font-semibold text-sm leading-tight">{{ product.nombre }}</p>
+                        <p class="text-gray-700 text-sm">${{ product.precio_actual|intcomma }}</p>
+                        <p class="text-xs text-gray-500">Cantidad: {{ quantity }}</p>
+                      </div>
                     </div>
-                    <a href="{% url 'cart:remove_all_from_cart' product.id %}" class="text-red-500 hover:text-red-700" title="Eliminar del carrito">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                           stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </a>
+                    <a href="{% url 'cart:remove_all_from_cart' product.id %}" class="text-red-500 hover:text-red-700 text-sm" title="Eliminar del carrito">×</a>
                   </li>
                 {% endif %}
               {% endwith %}
             {% endfor %}
           </ul>
-          <a href="{% url 'cart:view_cart' %}" class="block text-center bg-emerald-500 hover:bg-emerald-600 text-white py-2 px-4 rounded">
-            Ir al Checkout
-          </a>
         {% else %}
-          <p>Tu carrito está vacío.</p>
+          <p class="text-gray-600 text-sm">Tu carrito está vacío.</p>
         {% endif %}
       {% endwith %}
+    </div>
+
+    <!-- Pie con subtotal y botón -->
+    <div class="border-t p-4">
+      {% cart_total as cart_total_value %}
+      <div class="flex justify-between font-semibold text-gray-800 text-sm mb-4">
+        <span>SUBTOTAL:</span>
+        <span>${{ cart_total_value|intcomma }}</span>
+      </div>
+      <a href="{% url 'cart:view_cart' %}" class="block text-center bg-[#5e0013] hover:bg-[#7f1d1d] text-white py-2 px-4 rounded transition">
+        Ver Carrito
+      </a>
     </div>
   </div>
 </div>
 
+
+
 <!-- User Sidebar -->
 <div id="userOverlay" class="fixed inset-0 z-50 hidden" onclick="handleUserOverlayClick(event)">
   <div class="absolute inset-0" style="background-color: rgba(0, 0, 0, 0.3);"></div>
-  <div id="userSidebar" class="absolute top-0 right-0 h-full w-64 bg-[#F5E6CA] shadow-lg transform translate-x-full transition-transform duration-300 overflow-y-auto">
+  <div id="userSidebar" class="absolute top-0 right-0 h-full w-64 bg-[#FFFFFF] shadow-lg transform translate-x-full transition-transform duration-300 overflow-y-auto">
     <div class="flex justify-between items-center p-4 border-b">
       <h2 class="text-lg font-semibold">Mi cuenta</h2>
       <button onclick="closeUser()" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
     </div>
 
     <div class="p-4 text-sm text-gray-700 space-y-3">
-{% if user.is_authenticated and user|has_group:"personal_interno" %}
-  <a href="{% url 'store:dashboard_interno' %}"
-     class="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded transition">
-    🛠 Dashboard Interno
-  </a>
-{% endif %}
+      {% if user.is_authenticated and user|has_group:"personal_interno" %}
+        <a href="{% url 'store:dashboard_interno' %}"
+           class="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded transition">
+          🛠 Dashboard Interno
+        </a>
+        <a href="{% url 'orders:dashboard_pedidos' %}" class="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded transition">
+  📦 Ver Pedidos
+</a>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+        <a href="{% url 'orders:mis_pedidos' %}"
+           class="block w-full text-center bg-[#5e0013] hover:bg-[#7f1d1d] text-white py-2 px-4 rounded transition">
+          🧾 Mis pedidos
+        </a>
+      {% endif %}
 
       <form method="post" action="{% url 'users:logout' %}">
         {% csrf_token %}
@@ -212,14 +254,99 @@
   </div>
 </div>
 
+
+
+
+
+<footer class="bg-[#5e0013] text-white py-7 mt-1">
+  <div class="max-w-7xl mx-auto px-6 text-sm">
+
+    <!-- Icono centrado con separación -->  
+    <div class="flex justify-center mb-8">
+      <img src="{% static 'images/logo-g.png' %}" alt="Logo Góngora" class="h-14">
+    </div>
+
+    <!-- Grid del contenido -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8">
+
+      <!-- Contacto -->
+      <div>
+        <h3 class="font-bold uppercase mb-3">Contacto</h3>
+        <p>Osorno, Región de Los Lagos</p>
+        <p>+56 9 9614 0632</p>
+        <p>gongorajoyas@gmail.com</p>
+      </div>
+
+      <!-- Información -->
+      <div>
+        <h3 class="font-bold uppercase mb-3">Información</h3>
+        <ul class="space-y-1">
+          <li><a href="#" class="hover:underline">Sobre Nosotros</a></li>
+          <li><a href="#" class="hover:underline">Guía de Tallas</a></li>
+          <li><a href="#" class="hover:underline">Joyas a Medida</a></li>
+          <li><a href="#" class="hover:underline">Reparaciones</a></li>
+        </ul>
+      </div>
+
+      <!-- Políticas -->
+      <div>
+        <h3 class="font-bold uppercase mb-3">Políticas</h3>
+        <ul class="space-y-1">
+          <li><a href="#" class="hover:underline">Pagos y Envíos</a></li>
+          <li><a href="#" class="hover:underline">Política de Privacidad</a></li>
+          <li><a href="#" class="hover:underline">Garantía y Cambios</a></li>
+        </ul>
+      </div>
+
+      <!-- Pago -->
+      <div>
+        <h3 class="font-bold uppercase mb-3">Formas de Pago</h3>
+        <ul class="space-y-1">
+          <li>Transferencia Bancaria</li>
+          <li>Tarjetas de Crédito / Débito</li>
+        </ul>
+        <div class="mt-2">
+          <img src="{% static 'images/webpay-logo.png' %}" alt="Webpay" class="h-6">
+        </div>
+      </div>
+
+      <!-- Redes -->
+      <div>
+        <h3 class="font-bold uppercase mb-3">Síguenos</h3>
+        <div class="flex space-x-4">
+          <a href="https://facebook.com" target="_blank" class="hover:text-gray-300">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" class="hover:text-gray-300">
+            <i class="fab fa-instagram"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pie de página -->
+    <div class="mt-10 text-center text-xs text-gray-300">
+      © 2025 Góngora Joyas | Diseño y desarrollo por Gustavo Gongora
+    </div>
+
+  </div>
+</footer>
+
+
+
 <!-- Botón flotante de WhatsApp -->
-<a href="https://api.whatsapp.com/send?phone=56912345678&text=Hola%20Ferremas,%20necesito%20más%20información" 
+<a id="whatsappButton" href="https://api.whatsapp.com/send?phone=56996140632&text=Hola%20,%20necesito%20más%20información" 
    target="_blank" 
-   class="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-5 rounded-full shadow-lg z-50 transition duration-300 ease-in-out">
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 32 32">
-    <path d="M16 2.933c-7.245 0-13.067 5.822-13.067 13.067 0 2.308.6 4.572 1.734 6.574L2.8 29.2l6.814-1.942a13.006 13.006 0 006.386 1.707h.001c7.246 0 13.067-5.822 13.067-13.067S23.245 2.933 16 2.933zm0 23.734a10.627 10.627 0 01-5.498-1.548l-.394-.24-4.05 1.154 1.157-3.952-.257-.408a10.636 10.636 0 0117.808-11.494A10.61 10.61 0 0126.627 16c0 5.869-4.758 10.667-10.627 10.667zm5.831-8.008c-.32-.16-1.893-.934-2.187-1.04-.293-.106-.506-.16-.72.16s-.826 1.04-1.013 1.253c-.187.213-.373.24-.693.08s-1.36-.5-2.592-1.6c-.958-.853-1.6-1.893-1.786-2.213-.187-.32-.02-.493.14-.653.144-.143.32-.373.48-.56.16-.187.213-.32.32-.533.106-.213.053-.4 0-.56-.054-.16-.48-1.147-.66-1.573-.173-.413-.347-.36-.48-.36h-.412c-.133 0-.36.053-.54.253s-.72.707-.72 1.72.74 1.986.84 2.12c.1.133 1.46 2.24 3.54 3.14 2.48 1.04 2.48.693 2.92.64.44-.04 1.44-.587 1.65-1.147.2-.56.2-1.04.133-1.147-.066-.106-.213-.173-.44-.28z"/>
+   class="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white w-18 h-18 flex items-center justify-center rounded-full shadow-lg z-50 transition duration-300 ease-in-out">
+  <svg xmlns="http://www.w3.org/2000/svg" 
+       viewBox="0 0 448 512"
+       class="w-8 h-8 fill-white">
+    <path d="M380.9 97.1C339.3 55.5 282.7 32 224 32S108.7 55.5 67.1 97.1C25.5 138.7 2 195.3 2 254c0 45.4 13.6 89.3 39.3 126.7L0 480l102.3-38.4c35.1 19.3 74.2 29.4 121.7 29.4 58.7 0 115.3-23.5 156.9-65.1 41.6-41.6 65.1-98.2 65.1-156.9s-23.5-115.3-65.1-156.9zM224 426c-40.9 0-81.3-11-115.9-31.8l-8.3-4.9-61 22.9 22.5-59.2-5.4-8.8C39.1 314.8 30 285.2 30 254c0-107.1 87-194 194-194s194 87 194 194-87 194-194 194zm97.7-135.3c-5.3-2.7-31.4-15.4-36.3-17.1-4.9-1.8-8.5-2.7-12.1 2.7s-13.9 17.1-17 20.6c-3.1 3.5-6.3 4-11.6 1.3s-22.6-8.3-43-26.5c-15.9-14.1-26.7-31.4-29.8-36.7-3.1-5.4-.3-8.3 2.3-11 2.4-2.4 5.3-6.3 7.9-9.4 2.6-3.1 3.5-5.4 5.3-9 1.8-3.5.9-6.6-.4-9.4s-12.1-29.3-16.6-40.2c-4.4-10.6-8.9-9.2-12.1-9.3-3.1-.2-6.6-.2-10.1-.2s-9.4 1.3-14.3 6.6c-4.9 5.4-18.7 18.3-18.7 44.7s19.2 51.8 21.9 55.4c2.7 3.5 37.5 57.4 91 80.5 53.5 23.1 53.5 15.4 63.1 14.5 9.6-.9 31.4-12.8 35.9-25.2 4.4-12.4 4.4-23 .3-25.3z"/>
   </svg>
 </a>
+
+
 
   <!-- JS -->
   <script>
@@ -236,17 +363,25 @@
       });
     });
 
-    function openCart() {
-      document.getElementById("cartOverlay").classList.remove("hidden");
-      document.getElementById("cartSidebar").classList.remove("translate-x-full");
-    }
+function openCart() {
+  document.getElementById("cartOverlay").classList.remove("hidden");
+  document.getElementById("cartSidebar").classList.remove("translate-x-full");
 
-    function closeCart() {
-      document.getElementById("cartSidebar").classList.add("translate-x-full");
-      setTimeout(() => {
-        document.getElementById("cartOverlay").classList.add("hidden");
-      }, 300);
-    }
+  // Oculta WhatsApp
+  const whatsapp = document.getElementById("whatsappButton");
+  if (whatsapp) whatsapp.classList.add("hidden");
+}
+
+function closeCart() {
+  document.getElementById("cartSidebar").classList.add("translate-x-full");
+  setTimeout(() => {
+    document.getElementById("cartOverlay").classList.add("hidden");
+
+    // Muestra WhatsApp
+    const whatsapp = document.getElementById("whatsappButton");
+    if (whatsapp) whatsapp.classList.remove("hidden");
+  }, 300);
+}
 
     function handleCartOverlayClick(event) {
       const sidebar = document.getElementById("cartSidebar");
@@ -274,13 +409,18 @@
   <script src="{% static 'js/conversor.js' %}"></script>
 
   <script>
+  const API_BASE_URL = "{{ API_BASE_URL }}";
+  </script>
+
+
+  <script>
   function buscarProductos(event) {
     event.preventDefault();  // Evita el envío tradicional del formulario
 
     const query = document.getElementById("query").value.trim();
     if (!query) return;
 
-    const apiURL = `http://52.55.129.100/api/productos/?search=${encodeURIComponent(query)}`;
+    const apiURL = `${API_BASE_URL}productos/?search=${encodeURIComponent(query)}`;
     const productGrid = document.getElementById("product-grid");
     productGrid.innerHTML = '<p class="col-span-3 text-center text-gray-500">Buscando...</p>';
 

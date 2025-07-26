@@ -12,6 +12,7 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('logout/', LogoutView.as_view(next_page='users:login'), name='logout'),
     path('dashboard/', views.dashboard_interno, name='dashboard_interno'),
+    path('quienes_somos/', views.quienes_somos, name='quienes_somos'),
 
     # Ruta base al final
     path('', views.product_list, name='product_list_home'),

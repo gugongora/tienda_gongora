@@ -1,34 +1,63 @@
-import requests
 from decimal import Decimal
 from django.http import Http404
+from productos.models import Producto
+from utils.api import build_api_url
+import requests
+from django.conf import settings
+from types import SimpleNamespace
 
-API_BASE_URL = "http://52.55.129.100/api/productos/"
 
 def fetch_product_from_api(product_id):
-    response = requests.get(f"{API_BASE_URL}{product_id}/")
-    if response.status_code == 200:
-        return response.json()
-    raise Http404("Producto no encontrado")
-
-def get_cart_items(request):
-    cart = request.session.get('cart', {})
-    items = []
-
-    for product_id_str, quantity in cart.items():
+    if settings.DEBUG:
         try:
-            product_data = fetch_product_from_api(product_id_str)
-            precios = product_data.get('precios', [])
-            precio_actual = Decimal(precios[0]['valor']) if precios else Decimal(0)
-            subtotal = precio_actual * quantity
+            producto = Producto.objects.get(id=product_id)
+            precios = producto.precios.order_by('-fecha')
+            precio_actual = precios.first().valor if precios.exists() else Decimal('0')
 
-            items.append({
-                'product_id': int(product_id_str),
-                'product_name': product_data['nombre'],
-                'quantity': quantity,
-                'subtotal': subtotal
-            })
+            return {
+                'id': producto.id,
+                'nombre': producto.nombre,
+                'precio_actual': precio_actual,
+                'imagen': str(producto.imagen.url) if hasattr(producto.imagen, 'url') else None,
+            }
+        except Producto.DoesNotExist:
+            raise Http404("Producto no encontrado (modo DEBUG)")
+    else:
+        url = build_api_url(f"productos/{product_id}/")
+        try:
+            response = requests.get(url, timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            data['precio_actual'] = Decimal(str(data.get('precio_actual', 0)))
+            return data
+        except requests.RequestException as e:
+            print(f"❌ Error al obtener producto desde la API: {e}")
+            raise Http404("Producto no encontrado")
 
-        except Http404:
-            continue
 
-    return items
+class Cart:
+    def __init__(self, request):
+        self.session = request.session
+        self.cart = self.session.get('cart', {})
+
+    def __iter__(self):
+        for product_id_str, quantity in self.cart.items():
+            try:
+                product_data = fetch_product_from_api(product_id_str)
+                precio_actual = product_data.get('precio_actual', Decimal('0'))
+                subtotal = precio_actual * quantity
+
+                yield {
+                    'product': SimpleNamespace(**product_data),
+                    'product_id': int(product_id_str),
+                    'quantity': quantity,
+                    'subtotal': subtotal,
+                }
+            except Http404:
+                continue
+
+    def __len__(self):
+        return sum(self.cart.values())
+
+    def get_total_price(self):
+        return sum(item['subtotal'] for item in self)

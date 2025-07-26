@@ -27,8 +27,12 @@
         {% for item in cart_items %}
         <li class="py-3 flex gap-4 items-center">
 
-          <!-- Miniatura -->
-          <img src="{% static 'images/no-image.jpg' %}" alt="{{ item.product.nombre }}" class="w-16 h-16 object-cover rounded-md shadow">
+          <!-- Miniatura con fallback -->
+          {% if item.product.imagen %}
+            <img src="{{ item.product.imagen }}" alt="{{ item.product.nombre }}" class="w-16 h-16 object-cover rounded-md shadow">
+          {% else %}
+            <img src="{% static 'images/no-image.jpg' %}" alt="{{ item.product.nombre }}" class="w-16 h-16 object-cover rounded-md shadow">
+          {% endif %}
 
           <!-- Info + control de cantidad -->
           <div class="flex-1">
@@ -36,7 +40,7 @@
 
             <div class="flex items-center gap-2 mt-1">
               <!-- Botón restar -->
-              <a href="{% url 'cart:remove_from_cart' item.product.id|default:0 %}"
+              <a href="{% url 'cart:remove_from_cart' item.product.id %}"
                  class="w-6 h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-bold text-sm">
                 –
               </a>
@@ -45,13 +49,13 @@
               <span class="text-sm">{{ item.quantity }}</span>
 
               <!-- Botón sumar -->
-              <a href="{% url 'cart:increase_quantity' item.product.id|default:0 %}"
+              <a href="{% url 'cart:increase_quantity' item.product.id %}"
                  class="w-6 h-6 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-bold text-sm">
                 +
               </a>
 
               <!-- Eliminar -->
-              <a href="{% url 'cart:remove_all_from_cart' item.product.id|default:0 %}"
+              <a href="{% url 'cart:remove_all_from_cart' item.product.id %}"
                  class="ml-auto text-red-500 hover:text-red-700 text-xs font-semibold"
                  title="Eliminar producto del carrito">
                 Eliminar
@@ -72,7 +76,7 @@
       <form method="post" action="{% url 'orders:checkout' %}">
         {% csrf_token %}
         <button type="submit" class="w-full bg-[#BD6A5C] hover:bg-[#a45449] text-white font-semibold py-2 px-4 rounded transition">
-          💳 Pagar con Webpay
+          Finalizar compra
         </button>
       </form>
     {% else %}

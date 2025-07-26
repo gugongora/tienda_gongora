@@ -35,6 +35,9 @@ class ProductoViewSet(viewsets.ReadOnlyModelViewSet):
 
         return queryset
 
+    def get_serializer_context(self):
+        return {'request': self.request}  # 👈 NECESARIO para imagen_url
+
 class CategoriaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Categoria.objects.all().order_by('id')
     serializer_class = CategoriaSerializer

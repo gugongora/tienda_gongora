@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Sección de presentación -->
+<section class="w-full h-[700px] bg-cover bg-center flex items-center justify-center" style="background-image: url('{% static "images/somos-fondo.jpg" %}');">
+  <div class="bg-black bg-opacity-60 text-white p-8 max-w-xl text-center rounded shadow-lg">
+    <h1 class="text-3xl font-bold mb-4">SOMOS</h1>
+    <p class="mb-2">
+      Nuestras obras son una delicada combinación, de esmero talento y experiencia.
+    </p>
+    <p class="mb-4">
+      Descubra las piezas de joyería que creamos hoy con pasión y con la trayectoria...
+    </p>
+    <a href="{% url 'store:product_list' %}" class="bg-white text-black font-semibold px-4 py-2 rounded hover:bg-gray-200">Volver al catálogo</a>
+  </div>
+</section>
+
+<!-- Servicios destacados del Maestro Orfebre -->
+<section class="w-full py-16 bg-white px-6">
+  <h3 class="text-3xl font-semibold text-center text-gray-800 mb-12">Especialidades del Maestro Orfebre</h3>
+  
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+    
+    <!-- Reparaciones -->
+    <div id="reparaciones" class="flex flex-col">
+      <img src="{% static 'images/servicios/reparaciones.jpg' %}" alt="Reparaciones de joyas" class="w-full h-60 object-cover rounded shadow mb-4">
+      <h4 class="text-lg font-semibold text-gray-700 mb-2 uppercase">Reparaciones</h4>
+      <p class="text-sm text-gray-600 mb-3">Recupera el valor sentimental y funcional de tus piezas favoritas.</p>
+    </div>
+
+    <!-- Argollas de Matrimonio -->
+    <div id="argollas" class="flex flex-col">
+      <img src="{% static 'images/servicios/argollas.jpg' %}" alt="Argollas de matrimonio" class="w-full h-60 object-cover rounded shadow mb-4">
+      <h4 class="text-lg font-semibold text-gray-700 mb-2 uppercase">Argollas de Matrimonio</h4>
+      <p class="text-sm text-gray-600 mb-3">Diseños únicos hechos a mano para el compromiso de una vida.</p>
+    </div>
+
+    <!-- Pedidos Personalizados -->
+    <div id="personalizados" class="flex flex-col">
+      <img src="{% static 'images/servicios/pedidos.jpg' %}" alt="Diseños personalizados" class="w-full h-60 object-cover rounded shadow mb-4">
+      <h4 class="text-lg font-semibold text-gray-700 mb-2 uppercase">Pedidos Exclusivos</h4>
+      <p class="text-sm text-gray-600 mb-3">Creamos joyas únicas según tus ideas, con atención a cada detalle.</p>
+    </div>
+
+    <!-- Garantía -->
+    <div id="garantia" class="flex flex-col">
+      <img src="{% static 'images/servicios/garantia.jpg' %}" alt="Garantía" class="w-full h-60 object-cover rounded shadow mb-4">
+      <h4 class="text-lg font-semibold text-gray-700 mb-2 uppercase">Garantía & Ajustes</h4>
+      <p class="text-sm text-gray-600 mb-3">Servicio postventa para ajustes y limpieza sin costo adicional.</p>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
